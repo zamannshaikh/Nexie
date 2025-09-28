@@ -3,7 +3,7 @@ const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
 const generateResponse = require("../services/ai.service");
-const messageModel=require("../models/message.model");
+const messageModel = require("../models/message.model");
 
 function initSocketServer(httpServer) {
     const io = new Server(httpServer, {
@@ -21,24 +21,24 @@ function initSocketServer(httpServer) {
             const parsedCookies = cookie.parse(cookies);
 
 
-        
+
 
             const token =
-             parsedCookies.token ||                
-            socket.handshake.auth?.token ||         
-            socket.handshake.query?.token;       
+                parsedCookies.token ||
+                socket.handshake.auth?.token ||
+                socket.handshake.query?.token;
 
-                   
+
 
 
             if (!token) return next(new Error("No token found"));
 
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-              
+
 
             const user = await userModel.findById(decoded.userId);
-      
+
 
             if (!user) return next(new Error("User not found"));
 
@@ -63,20 +63,25 @@ function initSocketServer(httpServer) {
                     });
                 }
                 await messageModel.create({
-                    chat:payload.chat,
-                    user:socket.user._id,
-                    content:payload.content,
-                    role:"user"
+                    chat: payload.chat,
+                    user: socket.user._id,
+                    content: payload.content,
+                    role: "user"
                 })
-             
+
+                const chatHistory = (await messageModel.find({ chat: payload.chat }))
+                    .map(item => ({
+                        role: item.role, // "user" or "model"
+                        parts: [{ text: item.content }]
+                    }));
 
 
-                const response = await generateResponse(payload.content);
+                const response = await generateResponse(chatHistory);
                 await messageModel.create({
-                    chat:payload.chat,
-                    user:socket.user._id,
-                    content:response,
-                    role:"model"
+                    chat: payload.chat,
+                    user: socket.user._id,
+                    content: response,
+                    role: "model"
                 })
                 console.log("Response from AI:", response);
 
