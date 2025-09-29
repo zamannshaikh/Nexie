@@ -6,9 +6,6 @@ const { generateResponse, generateVector } = require("../services/ai.service");
 const messageModel = require("../models/message.model");
 const { createMemory, queryMemory } = require("../services/vector.service");
 
-const MAX_SHORT_TERM_CHATS = 10; // 🔥 Limit short-term memory to last 10 messages
-const MAX_MEMORY_RESULTS = 3; // Pinecone results limit
-
 function initSocketServer(httpServer) {
     const io = new Server(httpServer, {
         cors: {
@@ -18,12 +15,11 @@ function initSocketServer(httpServer) {
         }
     });
 
-    // ✅ Auth middleware
+    // 🔑 Middleware: Auth check for every socket
     io.use(async (socket, next) => {
         try {
             const cookies = socket.handshake.headers?.cookie || "";
             const parsedCookies = cookie.parse(cookies);
-
             const token =
                 parsedCookies.token ||
                 socket.handshake.auth?.token ||
@@ -45,7 +41,7 @@ function initSocketServer(httpServer) {
     });
 
     io.on("connection", (socket) => {
-        console.log("✅ New client connected", socket.id, "User:", socket.user?.email);
+        console.log("New client connected", socket.id, "User:", socket.user?.email);
 
         socket.on("message", async (payload) => {
             try {
@@ -57,104 +53,105 @@ function initSocketServer(httpServer) {
                     });
                 }
 
-                // 1️⃣ Save user message in MongoDB
-                const userMessage = await messageModel.create({
-                    chat: payload.chat,
-                    user: socket.user._id,
-                    content: payload.content,
-                    role: "user"
+                // 1️⃣ Save user message + generate its vector in parallel
+                const [message, userVectors] = await Promise.all([
+                    messageModel.create({
+                        chat: payload.chat,
+                        user: socket.user._id,
+                        content: payload.content,
+                        role: "user"
+                    }),
+                    generateVector(payload.content)
+                ]);
+
+                // 2️⃣ Query long-term memory
+                const memory = await queryMemory({
+                    queryVector: userVectors,
+                    limit: 3
                 });
 
-                // 2️⃣ Generate embedding for user message
-                const userVector = await generateVector(payload.content);
-
-                // 3️⃣ Query Pinecone memory (long-term memory)
-                const memoryMatches = await queryMemory({
-                    queryVector: userVector,
-                    limit: MAX_MEMORY_RESULTS
-                });
-
-                console.log("🧠 Memory Results:", memoryMatches.map(m => ({
+                console.log("Memory===>>> ", memory.map(m => ({
                     id: m.id,
-                    score: m.score.toFixed(3),
+                    score: m.score,
                     metadata: m.metadata
                 })));
 
-                // 4️⃣ Store current message in Pinecone for future memory
-                await createMemory({
-                    vectors: userVector,
-                    messageId: userMessage._id.toString(),
+                // 3️⃣ Store the user message in memory (async)
+                createMemory({
+                    vectors: userVectors,
+                    messageId: message._id.toString(),
                     metadata: {
                         chat: payload.chat.toString(),
                         user: socket.user._id.toString(),
-                        text: payload.content,
-                        role: "user"
+                        role: "user",
+                        text: payload.content
                     }
-                });
+                }).catch(err => console.error("Memory store error:", err));
 
-                // 5️⃣ Fetch only LAST N messages from DB (short-term memory)
-                const shortTermMessages = await messageModel.find({ chat: payload.chat })
-                    .sort({ createdAt: -1 }) // newest first
-                    .limit(MAX_SHORT_TERM_CHATS) // only last 10 messages
+                // 4️⃣ Prepare short-term memory (last 10 messages)
+                const recentMessages = await messageModel.find({ chat: payload.chat })
+                    .sort({ createdAt: -1 }) // latest first
+                    .limit(10)
                     .lean();
 
-                // Reverse to chronological order (oldest → newest)
-                shortTermMessages.reverse();
-
-                // 6️⃣ Format Pinecone memory into chat format
-                const memoryHistory = memoryMatches
-                    .filter(m => m?.metadata?.text) // only valid ones
-                    .map(m => ({
-                        role: m.metadata.role || "user",
-                        parts: [{ text: m.metadata.text }]
-                    }));
-
-                // 7️⃣ Format short-term memory from MongoDB
-                const shortTermHistory = shortTermMessages.map(msg => ({
-                    role: msg.role,
-                    parts: [{ text: msg.content }]
+                const stm = recentMessages.reverse().map(item => ({
+                    role: item.role,
+                    parts: [{ text: item.content }]
                 }));
 
-                // 8️⃣ Merge memory + short-term history + current message
-                const fullContext = [...memoryHistory, ...shortTermHistory, {
+                // 5️⃣ Prepare long-term memory (hybrid approach)
+                const ltm = [
+                    {
+                        role: "system",
+                        parts: [{
+                            text: "Here are some relevant past conversation snippets. Use them only for context and answer naturally."
+                        }]
+                    },
+                    ...memory.map(item => ({
+                        role: item.metadata?.role || "user",
+                        parts: [{ text: item.metadata?.text }]
+                    }))
+                ];
+
+                // 6️⃣ Generate AI response
+                const response = await generateResponse([...ltm, ...stm, {
                     role: "user",
                     parts: [{ text: payload.content }]
-                }];
+                }]);
 
-                // 9️⃣ Generate AI response
-                const response = await generateResponse(fullContext);
+                // 7️⃣ Save model response + generate its vector in parallel
+                const [responseMessage, responseVectors] = await Promise.all([
+                    messageModel.create({
+                        chat: payload.chat,
+                        user: socket.user._id,
+                        content: response,
+                        role: "model"
+                    }),
+                    generateVector(response)
+                ]);
 
-                // 🔟 Save AI response to DB
-                const responseMessage = await messageModel.create({
-                    chat: payload.chat,
-                    user: socket.user._id,
-                    content: response,
-                    role: "model"
-                });
-
-                // 1️⃣1️⃣ Store AI response in Pinecone
-                const responseVector = await generateVector(response);
-                await createMemory({
-                    vectors: responseVector,
+                // 8️⃣ Store AI response in memory (async)
+                createMemory({
+                    vectors: responseVectors,
                     messageId: responseMessage._id.toString(),
                     metadata: {
                         chat: payload.chat.toString(),
                         user: socket.user._id.toString(),
-                        text: response,
-                        role: "model"
+                        role: "model",
+                        text: response
                     }
-                });
+                }).catch(err => console.error("Memory store error:", err));
 
-                console.log("🤖 Response from AI:", response);
+                console.log("Response from AI:", response);
 
-                // 1️⃣2️⃣ Send back to frontend
+                // 9️⃣ Send response to client
                 socket.emit("response", {
                     content: response,
                     chat: payload.chat
                 });
 
             } catch (error) {
-                console.error("❌ Error generating response:", error.message);
+                console.error("Error generating response:", error.message);
                 socket.emit("response", {
                     content: "Sorry, I couldn't process your message.",
                     chat: payload?.chat,
