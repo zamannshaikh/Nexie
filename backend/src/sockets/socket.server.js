@@ -2,9 +2,9 @@ const { Server } = require("socket.io");
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
-const {generateResponse,generateVector} = require("../services/ai.service");
+const { generateResponse, generateVector } = require("../services/ai.service");
 const messageModel = require("../models/message.model");
-const {createMemory,queryMemory}=require("../services/vector.service");
+const { createMemory, queryMemory } = require("../services/vector.service");
 
 
 function initSocketServer(httpServer) {
@@ -61,80 +61,103 @@ function initSocketServer(httpServer) {
                     return socket.emit("response", {
                         content: "Invalid message payload",
                         chat: payload?.chat,
-                        error: true
+                        error: true,
                     });
                 }
-              const message=  await messageModel.create({
+
+                // 1️⃣ Store user message in DB
+                const message = await messageModel.create({
                     chat: payload.chat,
                     user: socket.user._id,
                     content: payload.content,
-                    role: "user"
-                })
-                const vectors= await generateVector(payload.content);
-                
+                    role: "user",
+                });
 
-                const memory= await queryMemory({
-                   queryVector: vectors,
-                    limit:3,
-                    metadata:{}
-                })
-                console.log("Memory===>>> ",memory)
+                // 2️⃣ Generate vector & query Pinecone
+                const vectors = await generateVector(payload.content);
+                const memoryResults = await queryMemory({
+                    queryVector: vectors,
+                    limit: 3,
+                });
 
+                console.log(
+                    "Memory from Pinecone:",
+                    memoryResults.map((m) => ({
+                        id: m.id,
+                        score: m.score,
+                        metadata: m.metadata,
+                    }))
+                );
 
+                // 3️⃣ Save this message to Pinecone for future recall
                 await createMemory({
-                     vectors,
-                    messageId:message._id,
-                    metadata:{
-                        chat:payload.chat,
-                        user:socket.user._id,
-                        text :payload.content
-                    }
-                })
+                    vectors,
+                    messageId: message._id.toString(),
+                    metadata: {
+                        chat: payload.chat.toString(),
+                        user: socket.user._id.toString(),
+                        text: payload.content,
+                        role: "user",
+                    },
+                });
 
-                
-                const chatHistory = (await messageModel.find({ chat: payload.chat }))
-                    .map(item => ({
-                        role: item.role, // "user" or "model"
-                        parts: [{ text: item.content }]
-                    }));
+                // 4️⃣ Build chatHistory from BOTH Pinecone + MongoDB
+                const pineconeHistory = memoryResults.map((item) => ({
+                    role: item.metadata?.role || "user",
+                    parts: [{ text: item.metadata?.text || "" }],
+                }));
 
+                const dbHistory = (await messageModel.find({ chat: payload.chat })).map(
+                    (item) => ({
+                        role: item.role,
+                        parts: [{ text: item.content }],
+                    })
+                );
 
+                const chatHistory = [...pineconeHistory, ...dbHistory];
+
+                // Optional: Deduplicate by messageId if you store both DB + Pinecone for same messages
+
+                // 5️⃣ Generate response using Gemini
                 const response = await generateResponse(chatHistory);
-               const responseMessage= await messageModel.create({
+
+                // 6️⃣ Store model response in DB + Pinecone
+                const responseMessage = await messageModel.create({
                     chat: payload.chat,
                     user: socket.user._id,
                     content: response,
-                    role: "model"
-                })
-
-
-                const responseVectors= await generateVector(response)
-                await createMemory({
-                  vectors: responseVectors,
-                   messageId:responseMessage._id,
-                   metadata:{
-                      chat:payload.chat,
-                        user:socket.user._id,
-                        text:response
-                   }
-
-                })
-                console.log("Response from AI:", response);
-
-                socket.emit("response", {
-                    content: response,
-                    chat: payload.chat
+                    role: "model",
                 });
 
+                const responseVectors = await generateVector(response);
+                await createMemory({
+                    vectors: responseVectors,
+                    messageId: responseMessage._id.toString(),
+                    metadata: {
+                        chat: payload.chat.toString(),
+                        user: socket.user._id.toString(),
+                        text: response,
+                        role: "model",
+                    },
+                });
+
+                console.log("Response from AI:", response);
+
+                // 7️⃣ Send response back to frontend
+                socket.emit("response", {
+                    content: response,
+                    chat: payload.chat,
+                });
             } catch (error) {
                 console.error("Error generating response:", error.message);
                 socket.emit("response", {
                     content: "Sorry, I couldn't process your message.",
                     chat: payload?.chat,
-                    error: true
+                    error: true,
                 });
             }
         });
+
 
         socket.on("disconnect", () => {
             console.log("Client disconnected", socket.id);

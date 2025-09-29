@@ -21,7 +21,8 @@ async function queryMemory({queryVector,limit,metadata}) {
     const data= await gptIndex.query({
         vector:queryVector,
         topK:limit,
-        filter:metadata?{metadata}:undefined
+     includeMetadata: true,   // <-- VERY IMPORTANT
+        filter: metadata || undefined
 
     })
 
