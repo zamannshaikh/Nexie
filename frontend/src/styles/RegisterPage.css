@@ -1,0 +1,150 @@
+/* Using a new root class to avoid any potential conflicts */
+.register-page {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background-color: #111827;
+    font-family: var(--font-family);
+}
+
+/* --- Left Branding Panel --- */
+/* The entire left panel styling is identical to LoginPage.css */
+.register-panel-left {
+    flex: 1;
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-panel-left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(45deg, rgba(45,212,191,0.05) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(167,139,250,0.05) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(45,212,191,0.05) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(167,139,250,0.05) 75%);
+    background-size: 40px 40px;
+    opacity: 0.1;
+    z-index: 0;
+}
+
+.register-panel-left::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent 50%),
+                radial-gradient(circle at bottom right, rgba(167,139,250,0.15), transparent 50%);
+    background-size: 200% 200%;
+    animation: subtle-gradient-shift 15s ease infinite alternate;
+    opacity: 0.7;
+    z-index: 1;
+}
+
+/* --- Right Form Panel --- */
+/* The entire right panel styling is identical to LoginPage.css */
+.register-panel-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.register-form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.input-group-register {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group-register label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary-color);
+}
+
+.input-group-register input {
+    background-color: #27272a;
+    border: 1px solid #3f3f46;
+    color: var(--text-color);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group-register input:focus {
+    outline: none;
+    border-color: var(--accent-color-2);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+}
+
+.btn-register-submit {
+    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
+    color: var(--bg-color);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.2s;
+    margin-top: 1rem;
+}
+
+.btn-register-submit:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-secondary-color);
+    font-size: 0.9rem;
+}
+
+.login-link a {
+    color: var(--accent-color-1);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* --- Responsive Design --- */
+/* Identical to LoginPage.css */
+@media (max-width: 768px) {
+    .register-panel-left {
+        display: none;
+    }
+
+    .register-panel-right {
+        flex-basis: 100%;
+    }
+}

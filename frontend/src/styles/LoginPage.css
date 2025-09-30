@@ -1,0 +1,266 @@
+/* Reusing the same root variables for consistency */
+:root {
+    --bg-color: #0c0a09;
+    --text-color: #f2f2f2;
+    --text-secondary-color: #a8a29e;
+    --accent-color-1: #2dd4bf;
+    --accent-color-2: #a78bfa;
+    --font-family: 'Inter', sans-serif;
+}
+
+.login-page-v2 {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background-color: #111827; /* A neutral dark blue-gray */
+    font-family: var(--font-family);
+}
+
+/* --- Left Branding Panel --- */
+.login-panel-left {
+    flex: 1;
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    position: relative; /* Needed for pseudo-elements and overlays */
+    overflow: hidden; /* Ensures pattern and gradient don't overflow */
+}
+
+/* Subtle Geometric Pattern */
+.login-panel-left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(45deg, rgba(45,212,191,0.05) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(167,139,250,0.05) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(45,212,191,0.05) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(167,139,250,0.05) 75%);
+    background-size: 40px 40px; /* Size of the pattern cells */
+    opacity: 0.1; /* Very subtle */
+    z-index: 0;
+}
+
+/* Subtle Gradient Overlay for depth and animation */
+.login-panel-left::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent 50%),
+                radial-gradient(circle at bottom right, rgba(167,139,250,0.15), transparent 50%);
+    background-size: 200% 200%; /* Makes the gradient larger than the container */
+    animation: subtle-gradient-shift 15s ease infinite alternate; /* Slow, subtle movement */
+    opacity: 0.7; /* Controls the intensity of the gradient */
+    z-index: 1;
+}
+
+@keyframes subtle-gradient-shift {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+
+.brand-content {
+    text-align: center;
+    color: var(--text-color);
+    position: relative; /* Ensures text is above background effects */
+    z-index: 2;
+}
+
+.brand-logo {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* Optional: Add a slight text shadow for better readability over subtle patterns */
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.brand-tagline {
+    font-size: 1.2rem;
+    color: var(--text-secondary-color);
+    font-weight: 400;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Optional */
+}
+
+/* --- Right Form Panel --- */
+.login-panel-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.login-form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-header {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.form-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.form-header p {
+    color: var(--text-secondary-color);
+}
+
+/* --- Social Login Buttons --- */
+.social-login-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-social {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background-color: #27272a;
+    border: 1px solid #3f3f46;
+    color: var(--text-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-social:hover {
+    background-color: #3f3f46;
+}
+
+/* --- Divider --- */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--text-secondary-color);
+    font-size: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #3f3f46;
+}
+.divider span {
+    padding: 0 1rem;
+}
+
+/* --- Form Elements --- */
+.login-form-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.input-group-v2 {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group-v2 label, .label-wrapper {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary-color);
+}
+
+.label-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.input-group-v2 input {
+    background-color: #27272a;
+    border: 1px solid #3f3f46;
+    color: var(--text-color);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group-v2 input:focus {
+    outline: none;
+    border-color: var(--accent-color-2);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+}
+
+.forgot-password-v2 {
+    font-size: 0.85rem;
+    color: var(--accent-color-1);
+    text-decoration: none;
+    transition: filter 0.2s;
+}
+.forgot-password-v2:hover {
+    filter: brightness(1.2);
+}
+
+.btn-login-submit-v2 {
+    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
+    color: var(--bg-color);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.2s;
+    margin-top: 0.5rem;
+}
+
+.btn-login-submit-v2:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+.signup-link-v2 {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-secondary-color);
+    font-size: 0.9rem;
+}
+
+.signup-link-v2 a {
+    color: var(--accent-color-1);
+    font-weight: 500;
+    text-decoration: none;
+}
+.signup-link-v2 a:hover {
+    text-decoration: underline;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+    .login-panel-left {
+        display: none; /* Hide the branding panel on smaller screens */
+    }
+
+    .login-panel-right {
+        flex-basis: 100%; /* The form panel takes the full width */
+    }
+}

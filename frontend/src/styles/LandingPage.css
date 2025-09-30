@@ -1,0 +1,262 @@
+/* --- CSS Variables for easy theme management --- */
+:root {
+    --bg-color: #0c0a09;
+    --text-color: #f2f2f2;
+    --text-secondary-color: #a8a29e;
+    --accent-color-1: #2dd4bf;
+    --accent-color-2: #a78bfa;
+    --accent-color-3: #f472b6;
+    --font-family: 'Inter', sans-serif;
+}
+
+/* --- Main Page Styling --- */
+.landing-page {
+    height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- Aurora Background Effect --- */
+.aurora-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    filter: blur(100px);
+}
+
+.aurora-dot {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+}
+
+/* Positions and colors of the glowing dots */
+.aurora-dot:nth-child(1) {
+    width: 400px;
+    height: 400px;
+    background-color: var(--accent-color-1);
+    top: 10%;
+    left: 15%;
+    animation: move1 15s infinite alternate;
+}
+
+.aurora-dot:nth-child(2) {
+    width: 350px;
+    height: 350px;
+    background-color: var(--accent-color-2);
+    top: 50%;
+    left: 40%;
+    animation: move2 18s infinite alternate;
+}
+
+.aurora-dot:nth-child(3) {
+    width: 300px;
+    height: 300px;
+    background-color: var(--accent-color-3);
+    top: 25%;
+    left: 70%;
+    animation: move3 16s infinite alternate;
+}
+
+@keyframes move1 {
+    to { transform: translate(50px, 100px); }
+}
+@keyframes move2 {
+    to { transform: translate(-80px, -40px); }
+}
+@keyframes move3 {
+    to { transform: translate(40px, -60px); }
+}
+
+/* --- Navigation Bar --- */
+.navbar {
+    width: 100%;
+    max-width: 1200px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* --- Hero Section --- */
+.hero-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-title {
+    font-size: 5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    max-width: 800px;
+}
+
+/* Gradient Text with Shine Effect */
+.gradient-text {
+    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2), var(--accent-color-3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: gradient-flow 8s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+@keyframes gradient-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.hero-tagline {
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: var(--text-secondary-color);
+    margin-bottom: 1.5rem;
+    min-height: 50px; /* Prevents layout jump */
+}
+
+.animated-text {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.cursor {
+    display: inline-block;
+    background-color: var(--accent-color-1);
+    margin-left: 4px;
+    width: 4px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+.hero-description {
+    font-size: 1.1rem;
+    font-weight: 400;
+    max-width: 600px;
+    margin: 0 auto 2.5rem auto;
+    line-height: 1.6;
+    color: var(--text-secondary-color);
+}
+
+/* --- Buttons --- */
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-login {
+    background-color: transparent;
+    color: var(--text-color);
+}
+
+.btn-login:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-register {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+}
+
+.btn-register:hover {
+    background-color: #d4d4d4;
+}
+
+.btn-get-started {
+    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
+    color: var(--bg-color);
+    font-size: 1rem;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(167, 139, 250, 0.3);
+}
+
+.btn-get-started:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 25px rgba(167, 139, 250, 0.5);
+}
+
+/* --- Entry Animations --- */
+.animate-fade-in {
+    animation: fadeIn 1s ease-out forwards;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown 0.8s ease-out forwards;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0; /* Set initial state for JS-free staggering */
+}
+
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+    .hero-title { font-size: 3.5rem; }
+    .hero-tagline { font-size: 1.8rem; }
+    .hero-description { font-size: 1rem; }
+    .navbar { padding: 1rem; }
+}
+
+@media (max-width: 480px) {
+    .hero-title { font-size: 2.5rem; }
+    .hero-tagline { font-size: 1.5rem; }
+    .nav-buttons { display: none; } /* Hides nav buttons on very small screens */
+}
