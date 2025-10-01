@@ -137,6 +137,39 @@
     text-decoration: underline;
 }
 
+
+/* --- Add these new styles for the password toggle --- */
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    /* Add some padding on the right to not overlap with the text */
+    padding-right: 4rem; 
+}
+
+.password-toggle-icon {
+    position: absolute;
+    right: 1rem; /* Position inside the input field */
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-secondary-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+    user-select: none; /* Prevents text from being selected on click */
+    transition: color 0.2s;
+}
+
+.password-toggle-icon:hover {
+    color: var(--text-color);
+}
+
+
 /* --- Responsive Design --- */
 /* Identical to LoginPage.css */
 @media (max-width: 768px) {

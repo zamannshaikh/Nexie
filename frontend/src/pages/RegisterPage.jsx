@@ -1,22 +1,39 @@
 import React, { useState } from 'react';
-import '../styles/RegisterPage.css'; // We'll create this CSS file next
+import '../styles/RegisterPage.css';
+import axios from '../api/axiosconfig';
+import { useNavigate } from 'react-router-dom';
+
 
 const RegisterPage = ({ onNavigate }) => {
-    const [fullName, setFullName] = useState('');
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const navigate=useNavigate();
+    
+    // State to manage password visibility
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         if (password !== confirmPassword) {
             alert("Passwords don't match!");
             return;
         }
-        // Handle registration logic
-        console.log('Registering with:', { fullName, email, password });
-        alert('Registration complete! (Check console for details)');
-        onNavigate('login'); // Navigate to login page after successful registration
+       try {
+        const response=  await axios.post("/auth/register",{name,email,password},{
+             withCredentials: true 
+
+        })
+        console.log("Response from backend: ",response)
+        navigate("/login")
+        
+       } catch (error) {
+        console.error("Error Registering user: ",error)
+       }
+        console.log('Registering with:', { name, email, password });
+        
     };
 
     return (
@@ -39,13 +56,13 @@ const RegisterPage = ({ onNavigate }) => {
 
                     <form onSubmit={handleRegister} className="register-form">
                         <div className="input-group-register">
-                            <label htmlFor="fullName">Full Name</label>
+                            <label htmlFor="fullName"> Name</label>
                             <input
                                 type="text"
                                 id="fullName"
                                 placeholder="John Doe"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                                 required
                             />
                         </div>
@@ -60,28 +77,46 @@ const RegisterPage = ({ onNavigate }) => {
                                 required
                             />
                         </div>
+                        {/* Updated Password Input Group */}
                         <div className="input-group-register">
                             <label htmlFor="password">Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                placeholder="Minimum 8 characters"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                minLength="8"
-                            />
+                            <div className="password-input-wrapper">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    placeholder="Minimum 8 characters"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    minLength="8"
+                                />
+                                <span 
+                                    className="password-toggle-icon" 
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? 'Hide' : 'Show'}
+                                </span>
+                            </div>
                         </div>
+                        {/* Updated Confirm Password Input Group */}
                          <div className="input-group-register">
                             <label htmlFor="confirmPassword">Confirm Password</label>
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                placeholder="Re-enter your password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
-                            />
+                            <div className="password-input-wrapper">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    id="confirmPassword"
+                                    placeholder="Re-enter your password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                />
+                                <span 
+                                    className="password-toggle-icon" 
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                >
+                                    {showConfirmPassword ? 'Hide' : 'Show'}
+                                </span>
+                            </div>
                         </div>
 
                         <button type="submit" className="btn-register-submit">

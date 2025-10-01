@@ -254,6 +254,47 @@
     text-decoration: underline;
 }
 
+
+/* Add these styles to your LoginPage.css */
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Make sure the input inside the wrapper takes full width */
+.password-input-wrapper input {
+    width: 100%;
+    /* Add padding to the right to prevent text from overlapping the icon */
+    padding-right: 3rem; 
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary-color); /* Use a theme color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+}
+
+.password-toggle-btn:hover {
+    color: var(--text-color);
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
 /* --- Responsive Design --- */
 @media (max-width: 768px) {
     .login-panel-left {

@@ -4,7 +4,7 @@ const jwt=require("jsonwebtoken");
 
 
 async function registerUser(req,res) {
-    const {fullName:{firstName,lastName},email,password}=req.body;
+    const {name,email,password}=req.body;
     const hashedPassword=await bcrypt.hash(password,10);
     try {
         const existingUser = await userModel.findOne({email});
@@ -12,7 +12,7 @@ async function registerUser(req,res) {
             return res.status(400).json({message:"User with this email already exists"});
         }
         const newUser = new userModel({
-            fullName:{firstName,lastName},
+            name,
             email,
             password:hashedPassword
         });
@@ -41,7 +41,11 @@ async function loginUser(req,res) {
             return res.status(400).json({message:"Invalid email or password"});
         }
         const token=jwt.sign({userId:user._id},process.env.JWT_SECRET);
-        res.cookie('token',token);
+        res.cookie('token',token,{
+              httpOnly: true,
+  secure: false,         // true if using https
+  sameSite: "lax"       // 👈 needed for cross-origin
+        });
         res.status(200).json({message:"Login successful"});
         console.log("User logged in:",user);
     } catch (error) {
