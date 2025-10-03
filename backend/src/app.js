@@ -17,9 +17,11 @@ app.use(cors({
 }))
 
 
+
 // using routes
 app.use('/api/auth',authRoutes);
 app.use('/api/chats',chatRoutes);
+
 
 
 

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import '../styles/RegisterPage.css';
 import axios from '../api/axiosconfig';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { asyncRegisterUser } from '../store/services/userService';
 
 
 const RegisterPage = ({ onNavigate }) => {
@@ -10,6 +12,7 @@ const RegisterPage = ({ onNavigate }) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const navigate=useNavigate();
+    const dispatch=useDispatch();
     
     // State to manage password visibility
     const [showPassword, setShowPassword] = useState(false);
@@ -21,18 +24,12 @@ const RegisterPage = ({ onNavigate }) => {
             alert("Passwords don't match!");
             return;
         }
-       try {
-        const response=  await axios.post("/auth/register",{name,email,password},{
-             withCredentials: true 
-
-        })
-        console.log("Response from backend: ",response)
-        navigate("/login")
-        
-       } catch (error) {
-        console.error("Error Registering user: ",error)
-       }
-        console.log('Registering with:', { name, email, password });
+     try {
+        dispatch(asyncRegisterUser(name,email,password));
+        console.log("Registering user : ",name,email,password)
+     } catch (error) {
+        console.error("Error in registration : ",error)
+     }
         
     };
 

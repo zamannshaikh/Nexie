@@ -57,4 +57,35 @@ async function loginUser(req,res) {
 
 
 
-module.exports={registerUser, loginUser};
+async function currentUserController(req,res) {
+     try {
+        if (!req.user) {
+            return res.status(401).json({ message: "Not authenticated" });
+        }
+
+        // Return user data (without password)
+        const { _id, name, email } = req.user;
+        res.json({ _id, name, email });
+
+    } catch (error) {
+        console.error("Error fetching current user:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+
+
+async function logoutUser(req,res) {
+     req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Could not log out, please try again' });
+        }
+        res.clearCookie('connect.sid'); // Clears the session cookie
+        res.status(200).json({ message: 'User logged out successfully' });
+    });
+    
+}
+
+
+
+module.exports={registerUser, loginUser,currentUserController,logoutUser};
