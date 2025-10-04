@@ -1,6 +1,15 @@
 const userModel=require("../models/user.model");
 const bcrypt=require("bcryptjs");
 const jwt=require("jsonwebtoken");
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// Helper to generate your application's token
+const generateToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: '30d',
+    });
+};
 
 
 async function registerUser(req,res) {
@@ -88,4 +97,58 @@ async function logoutUser(req,res) {
 
 
 
-module.exports={registerUser, loginUser,currentUserController,logoutUser};
+
+// NEW: Controller for Google Login
+const loginWithGoogle = async (req, res) => {
+    const { token } = req.body;
+
+    try {
+        // 1. Verify the Google token
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+        });
+
+        const payload = ticket.getPayload();
+        const { name, email, picture } = payload;
+
+        // 2. Check if user exists in your database
+        let user = await User.findOne({ email });
+
+        // 3. If user doesn't exist, create a new one
+        if (!user) {
+            // Note: Google doesn't provide a password. You might want to
+            // create users from Google without a password field, or generate a random one.
+            // A common approach is to have a field like 'authMethod: "google"'
+            user = await User.create({
+                name,
+                email,
+                // You might not have a password for Google-signed-up users
+                // password: a-very-strong-random-password, 
+                profilePicture: picture,
+                authMethod: 'google',
+            });
+        }
+        
+        // 4. If the user was found but signed up with email/password previously,
+        // you might want to handle this case (e.g., link accounts), but for now, we'll just log them in.
+
+        // 5. Generate your application's token and send response
+        const appToken = generateToken(user._id);
+
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            token: appToken, // Send your app's token, not Google's
+        });
+
+    } catch (error) {
+        console.error("Error verifying Google token:", error);
+        res.status(401).json({ message: 'Invalid Google Token. Please try again.' });
+    }
+};
+
+
+
+module.exports={registerUser, loginUser,currentUserController,logoutUser,loginWithGoogle};
