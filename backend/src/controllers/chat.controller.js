@@ -1,4 +1,5 @@
 const chatModel = require('../models/chat.model');
+const messageModel=require("../models/message.model");
 
 
 async function createChat(req, res) {
@@ -26,13 +27,13 @@ async function createChat(req, res) {
 
 async function getUserChats(req, res) {
     const user = req.user._id;
-    console.log("Searching for chats for user ID:", user);
+    // console.log("Searching for chats for user ID:", user);
 
     try {
         // The fix is here: { user: user }
         const chats = await chatModel.find({ user: user }).sort({ createdAt: -1 });
         
-        console.log("Chats fetched:", chats); // This should now show your chats
+        // console.log("Chats fetched:", chats); // This should now show your chats
         res.json(chats);
     } catch (error) {
         console.error("Error fetching chats:", error); // It's good practice to log the error
@@ -65,4 +66,25 @@ async function deleteChat(req,res) {
 }
 
 
-module.exports = { createChat ,getUserChats,deleteChat};
+
+
+
+
+
+
+async function getMessages(req,res) {
+    const chatId= req.params.id;
+    const messages= await messageModel.find({chat:chatId}).sort({createdAt:1});
+    console.log("testing response : ",messages)
+    res.status(200).json({
+        message: "messages fetched successfully",
+        messages:messages
+    })
+
+
+
+    
+}
+
+
+module.exports = { createChat ,getUserChats,deleteChat,getMessages};

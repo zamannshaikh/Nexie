@@ -53,6 +53,7 @@ function initSocketServer(httpServer) {
             error: true
           });
         }
+        console.log("Message received from user :", payload.content);
 
         // 1) Save user message & create vector in parallel
         const [message, userVector] = await Promise.all([

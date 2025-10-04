@@ -4,6 +4,8 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import userSlice from "./slices/userSlice";
 import chatSlice from "./slices/chatSlice";
+import messageSlice from "./slices/messageSlice";
+
 
 
 // WHY: `configureStore` is the main function that creates the Redux store.
@@ -15,7 +17,8 @@ export const store = configureStore({
  
     
     userReducer:userSlice,
-    chatReducer:chatSlice
+    chatReducer:chatSlice,
+    messageReducer:messageSlice
 
   },
 });

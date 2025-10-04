@@ -36,6 +36,7 @@ export const asyncCreateNewChat = (title) => async (dispatch) => {
             { withCredentials: true }
         );
         dispatch(chatCreateSuccess(response.data)); // On success, dispatch new chat
+         return response.data;
     } catch (error) {
         const errorMessage = error.response?.data?.message || error.message;
         dispatch(chatCreateFailure(errorMessage)); // On failure, dispatch error
