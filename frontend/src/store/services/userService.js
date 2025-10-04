@@ -1,5 +1,6 @@
 import { setCurrentUser,removeCurrentUser } from "../slices/userSlice"; 
-import axios from "../../api/axiosconfig"
+import axios from "../../api/axiosconfig";
+import { createAsyncThunk } from '@reduxjs/toolkit';
  
  
  
@@ -95,6 +96,30 @@ export const asyncGetCurrentUser = () => async (dispatch) => {
         dispatch(removeCurrentUser());
     }
 };
+
+
+
+
+
+
+// New thunk for Google login
+export const asyncLoginWithGoogle = createAsyncThunk(
+    'user/loginWithGoogle',
+    async (credential, { rejectWithValue }) => {
+        try {
+            // This is the backend endpoint we will create in the next step
+            const { data } = await api.post('/api/users/auth/google', { token: credential });
+
+            // Assuming your backend returns a user object and an app-specific token
+            localStorage.setItem('token', data.token);
+            return data; // This will be the action.payload
+
+        } catch (error) {
+            console.error("Google login failed on the backend:", error.response.data);
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
 
 
 
