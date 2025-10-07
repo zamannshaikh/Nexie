@@ -1,6 +1,6 @@
 import { setCurrentUser,removeCurrentUser } from "../slices/userSlice"; 
 import axios from "../../api/axiosconfig";
-import { createAsyncThunk } from '@reduxjs/toolkit';
+
  
  
  
@@ -9,7 +9,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
         const response = await axios.post("/auth/register",{name,email,password},
             {  withCredentials: true }
         );
-        console.log(response.data);
+        console.log("from registration : ",response.data)
         dispatch(setCurrentUser(response.data));
     } catch (error) {
         console.error("Error fetching user:", error);
@@ -31,6 +31,7 @@ export const asyncLoginUser = (email, password) => async (dispatch) => {
         });
 
         const user = response.data;
+        console.log("from login : ", user)
 
         // 1. Dispatch to update Redux state
         dispatch(setCurrentUser(user));
@@ -103,23 +104,41 @@ export const asyncGetCurrentUser = () => async (dispatch) => {
 
 
 // New thunk for Google login
-export const asyncLoginWithGoogle = createAsyncThunk(
-    'user/loginWithGoogle',
-    async (credential, { rejectWithValue }) => {
-        try {
-            // This is the backend endpoint we will create in the next step
-            const { data } = await api.post('/api/users/auth/google', { token: credential });
+export const asyncLoginWithGoogle = (credential) => async (dispatch) => {
 
-            // Assuming your backend returns a user object and an app-specific token
-            localStorage.setItem('token', data.token);
-            return data; // This will be the action.payload
 
-        } catch (error) {
+    try {
+        // 2. Make the API call
+        const { data } = await axios.post('/auth/google', { token: credential });
+
+        // On success, save the token from the backend
+        localStorage.setItem('token', data.token);
+        console.log("from user Service data :",data)
+
+        // 3. Dispatch a "success" action with the user data
+        dispatch(setCurrentUser(data));
+
+        // Return the data so the component can use it if needed
+        return data;
+
+    } catch (error) {
+        // 4. On failure, figure out the error message
+        let errorMessage = 'An unknown error occurred.';
+        if (error.response && error.response.data) {
+            errorMessage = error.response.data.message || 'Login failed on the backend.';
             console.error("Google login failed on the backend:", error.response.data);
-            return rejectWithValue(error.response.data);
+        } else {
+            errorMessage = error.message;
+            console.error("Google login failed:", error.message);
         }
+
+
+        
+
+        // Re-throw the error so the component's .catch() block can handle it
+        throw new Error(errorMessage);
     }
-);
+};
 
 
 

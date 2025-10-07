@@ -1,7 +1,9 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors= require("cors")
+const helmet = require('helmet');
 const app=express();
+
 
 // import routes
 const authRoutes=require("./routes/auth.routes");
@@ -16,6 +18,12 @@ app.use(cors({
     credentials:true
 }))
 
+
+
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  next();
+});
 
 
 // using routes

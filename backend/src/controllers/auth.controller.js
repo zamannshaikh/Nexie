@@ -110,23 +110,19 @@ const loginWithGoogle = async (req, res) => {
         });
 
         const payload = ticket.getPayload();
-        const { name, email, picture } = payload;
+        const { name, email } = payload;
 
         // 2. Check if user exists in your database
-        let user = await User.findOne({ email });
+        let user = await userModel.findOne({ email });
 
         // 3. If user doesn't exist, create a new one
         if (!user) {
             // Note: Google doesn't provide a password. You might want to
             // create users from Google without a password field, or generate a random one.
             // A common approach is to have a field like 'authMethod: "google"'
-            user = await User.create({
+            user = await userModel.create({
                 name,
-                email,
-                // You might not have a password for Google-signed-up users
-                // password: a-very-strong-random-password, 
-                profilePicture: picture,
-                authMethod: 'google',
+                email
             });
         }
         
@@ -136,11 +132,17 @@ const loginWithGoogle = async (req, res) => {
         // 5. Generate your application's token and send response
         const appToken = generateToken(user._id);
 
-        res.status(200).json({
+         res.cookie('token', appToken, {
+            httpOnly: true,
+            secure: false,   // true in production (https)
+            sameSite: "lax"
+        });
+
+         res.status(200).json({
             _id: user._id,
             name: user.name,
             email: user.email,
-            token: appToken, // Send your app's token, not Google's
+            message: "Google login successful"
         });
 
     } catch (error) {

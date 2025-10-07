@@ -5,8 +5,9 @@ import '../styles/LoginPage.css';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { asyncLoginUser ,asyncLoginWithGoogle} from '../store/services/userService';
-import { useGoogleLogin } from '@react-oauth/google';
+
 import { GoogleLogin } from '@react-oauth/google';
+import {jwtDecode} from "jwt-decode";
 
 
 
@@ -25,22 +26,23 @@ const LoginPage = () => {
 
 
 
-    const handleGoogleLogin = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            // The 'access_token' is used to get user info from Google's APIs.
-            // For simple sign-in, we just need to send it to our backend.
-            // However, the standard ID token flow is more common.
-            // Let's adjust to get the ID token instead.
-            // Note: The library has evolved. `google-auth-library` on the backend
-            // typically expects an ID token, not an access token.
-            // A simpler component, `GoogleLogin`, provides this directly.
-            // Let's switch to that for simplicity.
-        },
-        onError: () => {
-            console.error('Google Login Failed');
-            // TODO: Show an error message to the user
-        },
-    });
+    // const handleGoogleLogin = useGoogleLogin({
+    //     onSuccess: async (tokenResponse) => {
+    //         // The 'access_token' is used to get user info from Google's APIs.
+    //         // For simple sign-in, we just need to send it to our backend.
+    //         // However, the standard ID token flow is more common.
+    //         // Let's adjust to get the ID token instead.
+    //         // Note: The library has evolved. `google-auth-library` on the backend
+    //         // typically expects an ID token, not an access token.
+    //         // A simpler component, `GoogleLogin`, provides this directly.
+    //         // Let's switch to that for simplicity.
+    //         console.log(tokenResponse,"<<<<<<< from google")
+    //     },
+    //     onError: () => {
+    //         console.error('Google Login Failed');
+    //         // TODO: Show an error message to the user
+    //     },
+    // });
   
     const onSubmit = async (data) => {
         try {
@@ -60,18 +62,17 @@ const LoginPage = () => {
 
 
     // Let's use the simpler `GoogleLogin` component approach which is better for this flow.
-    const handleGoogleSuccess = (credentialResponse) => {
+    const handleGoogleSuccess = async (credentialResponse) => {
         // credentialResponse contains the JWT ID token
+        console.log("Credential response from login page :",jwtDecode(credentialResponse.credential))
         const idToken = credentialResponse.credential;
-        dispatch(asyncLoginWithGoogle(idToken))
-            .unwrap() // .unwrap() will throw an error if the thunk is rejected
-            .then(() => {
-                navigate("/chat");
-            })
-            .catch((err) => {
-                console.error("Failed to login with Google:", err);
-                // Optionally, show a UI error message here
-            });
+        try {
+         await dispatch(asyncLoginWithGoogle(idToken))
+        } catch (error) {
+            console.log("Error dispatching request :", error)
+        }
+            
+           
     };
 
 

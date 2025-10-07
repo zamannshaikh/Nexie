@@ -69,14 +69,16 @@ function initSocketServer(httpServer) {
         // 2) Query Pinecone for long-term memory (must include metadata in queryMemory impl)
         const memoryMatches = await queryMemory({
           queryVector: userVector,
-          limit: 3
+          limit: 3,
+           filter: { user: { '$eq': socket.user._id.toString() } }
         });
 
-        console.log("Pinecone matches:", memoryMatches.map(m => ({
-          id: m.id,
-          score: m.score,
-          metadata: m.metadata
-        })));
+        
+console.log(`Pinecone matches for user ${socket.user._id}:`, memoryMatches.map(m => ({
+  id: m.id,
+  score: m.score,
+  metadata: m.metadata
+})));
 
         // 3) Fire-and-forget upsert of this user message into Pinecone (non-blocking)
         createMemory({

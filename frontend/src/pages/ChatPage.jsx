@@ -279,28 +279,30 @@ const ChatPage = () => {
             </div>
           </div>
 
-          <div className="chat-input-area">
-            <div className="chat-input-container">
-              <form onSubmit={handleSendMessage} className="chat-input-form">
-                <textarea
-                  ref={textareaRef}
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) handleSendMessage(e);
-                  }}
-                  placeholder="Message Nexie..."
-                  rows="1"
-                />
-                <button type="submit" className="send-button" disabled={!userInput.trim() || isLoading}>
-                  <SendIcon />
-                </button>
-              </form>
-            </div>
-            <p className="disclaimer">
-              Nexie may produce inaccurate information. Please verify important details.
-            </p>
-          </div>
+          {activeChatId && (
+  <div className="chat-input-area">
+    <div className="chat-input-container">
+      <form onSubmit={handleSendMessage} className="chat-input-form">
+        <textarea
+          ref={textareaRef}
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) handleSendMessage(e);
+          }}
+          placeholder="Message Nexie..."
+          rows="1"
+        />
+        <button type="submit" className="send-button" disabled={!userInput.trim() || isLoading}>
+          <SendIcon />
+        </button>
+      </form>
+    </div>
+    <p className="disclaimer">
+      Nexie may produce inaccurate information. Please verify important details.
+    </p>
+  </div>
+)}
         </main>
       </div>
     </div>
