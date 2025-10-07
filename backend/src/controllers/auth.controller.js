@@ -6,7 +6,7 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // Helper to generate your application's token
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+    return jwt.sign({ userId: id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
@@ -101,6 +101,7 @@ async function logoutUser(req,res) {
 // NEW: Controller for Google Login
 const loginWithGoogle = async (req, res) => {
     const { token } = req.body;
+    console.log("Received Google token:", token);
 
     try {
         // 1. Verify the Google token
@@ -114,6 +115,7 @@ const loginWithGoogle = async (req, res) => {
 
         // 2. Check if user exists in your database
         let user = await userModel.findOne({ email });
+        console.log("User logged in via Google:", user._id);
 
         // 3. If user doesn't exist, create a new one
         if (!user) {
@@ -124,6 +126,8 @@ const loginWithGoogle = async (req, res) => {
                 name,
                 email
             });
+            console.log("New user created via Google login:", user);
+            console.log("User logged in via Google:", user._id);
         }
         
         // 4. If the user was found but signed up with email/password previously,

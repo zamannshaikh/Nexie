@@ -68,6 +68,7 @@ const LoginPage = () => {
         const idToken = credentialResponse.credential;
         try {
          await dispatch(asyncLoginWithGoogle(idToken))
+         navigate("/chat");
         } catch (error) {
             console.log("Error dispatching request :", error)
         }
