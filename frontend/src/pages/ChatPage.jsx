@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown'; // --- MODIFICATION: Added this import
 import "../styles/ChatPage.css";
 import { useSelector, useDispatch } from 'react-redux';
 import { asyncFetchUserChats, asyncCreateNewChat } from '../store/services/chatService';
@@ -6,7 +7,7 @@ import { setActiveChat } from '../store/slices/chatSlice';
 import { io } from "socket.io-client";
 import { asyncFetchMessages, asyncAddMessage } from "../store/services/messageService";
 
-// --- SVG Icons ---
+// --- SVG Icons (No changes here) ---
 const NexieIcon = ({ size = 24 }) => ( 
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -40,7 +41,7 @@ const PlusIcon = () => (
   </svg>
 );
 
-// --- CodeBlock Component ---
+// --- CodeBlock Component (No changes here) ---
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopied] = useState(false);
 
@@ -83,6 +84,7 @@ const CodeBlock = ({ code, language }) => {
 
 // --- Main ChatPage ---
 const ChatPage = () => {
+  // --- No changes to state, refs, or selectors ---
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -101,21 +103,19 @@ const ChatPage = () => {
     ? messagesByChatId[activeChatId] 
     : [];
 
-  // fetch chats
+  // --- No changes to useEffect hooks ---
   useEffect(() => {
     if (chatStatus === 'idle' && user) {
       dispatch(asyncFetchUserChats());
     }
   }, [chatStatus, user, dispatch]);
 
-  // auto scroll
   useEffect(() => {
     if (chatLogRef.current) {
       chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
 
-  // textarea auto resize
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -123,7 +123,6 @@ const ChatPage = () => {
     }
   }, [userInput]);
 
-  // socket connection
   useEffect(() => {
     const newSocket = io("http://localhost:5000/", { withCredentials: true });
     setSocket(newSocket);
@@ -140,6 +139,7 @@ const ChatPage = () => {
     return () => newSocket.disconnect();
   }, [dispatch, activeChatId]);
 
+  // --- No changes to handler functions ---
   const handleNewChat = async () => {
     const title = prompt("Enter a title for your new chat:");
     if (title && title.trim() !== '') {
@@ -163,22 +163,9 @@ const ChatPage = () => {
     setIsLoading(true);
 
     socket.emit("message", { chat: activeChatId, content: userInput });
-    console.log("message sent to backend:", userInput, activeChatId);
   };
 
-  const parseMessage = (text) => {
-    if (typeof text !== "string") text = String(text ?? "");
-    const parts = text.split(/(\`\`\`(\w*)\n[\s\S]*?\`\`\`)/g);
-
-    return parts.map((part, index) => {
-      if (part.startsWith("```")) {
-        const language = part.match(/```(\w*)/)?.[1] || "";
-        const code = part.replace(/```\w*\n?/, "").replace(/```$/, "");
-        return <CodeBlock key={index} code={code.trim()} language={language} />;
-      }
-      return part.trim() && <p key={index}>{part.trim()}</p>;
-    });
-  };
+  // --- MODIFICATION: Removed the entire `parseMessage` function ---
 
   const activeChatTitle = chatsById[activeChatId]?.title || 'New Chat';
 
@@ -207,7 +194,7 @@ const ChatPage = () => {
   return (
     <div className="chat-page-container">
       <div className="chat-page">
-        {/* Sidebar */}
+        {/* Sidebar (No changes here) */}
         <aside className={`chat-sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-content">
             <button className="new-chat-button" onClick={handleNewChat}>
@@ -236,7 +223,7 @@ const ChatPage = () => {
             </button>
             <div className="header-title">
               <NexieIcon size={28} />
-              <h1>{activeChatTitle}</h1>
+              <h1>Nexie </h1>
             </div>
           </header>
 
@@ -248,23 +235,38 @@ const ChatPage = () => {
                   <h2>Hey {user.name}, how can I help you today?</h2>
                 </div>
               )}
-
+             
+             {/* --- MODIFICATION: Updated message rendering logic --- */}
              {messages.map((msg, index) => (
-  <div
-    key={msg._id || index}
-    className={`message-wrapper ${
-      msg.sender === "user" ? "user-wrapper" : "bot-wrapper"
-    }`}
-  >
-    <div
-      className={`message-bubble ${
-        msg.sender === "user" ? "user-bubble" : "bot-bubble"
-      }`}
-    >
-      <div className="message-content">{parseMessage(msg.text)}</div>
-    </div>
-  </div>
-))}
+                <div
+                  key={msg._id || index}
+                  className={`message-wrapper ${msg.sender === "user" ? "user-wrapper" : "bot-wrapper"}`}
+                >
+                  <div className={`message-bubble ${msg.sender === "user" ? "user-bubble" : "bot-bubble"}`}>
+                    <div className="message-content">
+                      <ReactMarkdown
+                        children={String(msg.text ?? "")}
+                        components={{
+                          code(props) {
+                            const {children, className, node, ...rest} = props
+                            const match = /language-(\w+)/.exec(className || '')
+                            return match ? (
+                              <CodeBlock
+                                language={match[1]}
+                                code={String(children).replace(/\n$/, '')}
+                              />
+                            ) : (
+                              <code {...rest} className={className}>
+                                {children}
+                              </code>
+                            )
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
 
 
               {isLoading && (
@@ -279,30 +281,31 @@ const ChatPage = () => {
             </div>
           </div>
 
+          {/* Chat Input Area (No changes here) */}
           {activeChatId && (
-  <div className="chat-input-area">
-    <div className="chat-input-container">
-      <form onSubmit={handleSendMessage} className="chat-input-form">
-        <textarea
-          ref={textareaRef}
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) handleSendMessage(e);
-          }}
-          placeholder="Message Nexie..."
-          rows="1"
-        />
-        <button type="submit" className="send-button" disabled={!userInput.trim() || isLoading}>
-          <SendIcon />
-        </button>
-      </form>
-    </div>
-    <p className="disclaimer">
-      Nexie may produce inaccurate information. Please verify important details.
-    </p>
-  </div>
-)}
+            <div className="chat-input-area">
+              <div className="chat-input-container">
+                <form onSubmit={handleSendMessage} className="chat-input-form">
+                  <textarea
+                    ref={textareaRef}
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) handleSendMessage(e);
+                    }}
+                    placeholder="Message Nexie..."
+                    rows="1"
+                  />
+                  <button type="submit" className="send-button" disabled={!userInput.trim() || isLoading}>
+                    <SendIcon />
+                  </button>
+                </form>
+              </div>
+              <p className="disclaimer">
+                Nexie may produce inaccurate information. Please verify important details.
+              </p>
+            </div>
+          )}
         </main>
       </div>
     </div>
