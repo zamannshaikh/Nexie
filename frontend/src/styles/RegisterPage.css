@@ -3,15 +3,14 @@
     display: flex;
     height: 100vh;
     width: 100vw;
-    background-color: #111827;
-    font-family: var(--font-family);
+    background-color: #111827; /* --bg-color */
+    font-family: 'Inter', sans-serif; /* Recommended: Use a specific font */
 }
 
-/* --- Left Branding Panel --- */
-/* The entire left panel styling is identical to LoginPage.css */
+/* --- Left Branding Panel --- (No Changes Here) */
 .register-panel-left {
     flex: 1;
-    background-color: var(--bg-color);
+    background-color: #111827;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -19,41 +18,42 @@
     position: relative;
     overflow: hidden;
 }
-
 .register-panel-left::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     background-image:
         linear-gradient(45deg, rgba(45,212,191,0.05) 25%, transparent 25%),
-        linear-gradient(-45deg, rgba(167,139,250,0.05) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, rgba(45,212,191,0.05) 75%),
-        linear-gradient(-45deg, transparent 75%, rgba(167,139,250,0.05) 75%);
+        linear-gradient(-45deg, rgba(167,139,250,0.05) 25%, transparent 25%);
     background-size: 40px 40px;
     opacity: 0.1;
     z-index: 0;
 }
-
 .register-panel-left::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     background: radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent 50%),
                 radial-gradient(circle at bottom right, rgba(167,139,250,0.15), transparent 50%);
-    background-size: 200% 200%;
-    animation: subtle-gradient-shift 15s ease infinite alternate;
-    opacity: 0.7;
     z-index: 1;
+}
+.brand-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #f9fafb; /* --text-color */
+}
+.brand-logo {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+.brand-tagline {
+    font-size: 1.1rem;
+    color: #9ca3af; /* --text-secondary-color */
 }
 
 /* --- Right Form Panel --- */
-/* The entire right panel styling is identical to LoginPage.css */
 .register-panel-right {
     flex: 1;
     display: flex;
@@ -61,122 +61,208 @@
     align-items: center;
     padding: 2rem;
 }
-
 .register-form-container {
     width: 100%;
     max-width: 400px;
+    color: #f9fafb; /* --text-color */
 }
-
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.form-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+.form-header p {
+    color: #9ca3af; /* --text-secondary-color */
+    margin-top: 0.5rem;
+}
 .register-form {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
 }
-
 .input-group-register {
     display: flex;
     flex-direction: column;
 }
-
 .input-group-register label {
     font-size: 0.9rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
-    color: var(--text-secondary-color);
+    color: #d1d5db; /* --text-secondary-color */
 }
 
-.input-group-register input {
-    background-color: #27272a;
-    border: 1px solid #3f3f46;
-    color: var(--text-color);
-    padding: 0.8rem 1rem;
+/* --- NEW: Input Wrapper for Icons --- */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #6b7280; /* A bit muted */
+    pointer-events: none; /* Make icon non-interactive */
+}
+/* UPDATE: Input styling to accommodate icon */
+.input-wrapper input {
+    width: 100%;
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    color: #f9fafb; /* --text-color */
+    padding: 0.8rem 1rem 0.8rem 3rem; /* Left padding for icon */
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
-
-.input-group-register input:focus {
+.input-wrapper input:focus {
     outline: none;
-    border-color: var(--accent-color-2);
+    border-color: #8b5cf6; /* --accent-color-2 */
     box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
 }
+.input-wrapper input:focus + .input-icon {
+    color: #a78bfa; /* Change icon color on focus */
+}
 
+/* --- UPDATED: Password Toggle Button --- */
+.password-toggle-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #9ca3af;
+    transition: background-color 0.2s, color 0.2s;
+}
+.password-toggle-btn:hover {
+    background-color: #374151;
+    color: #f9fafb;
+}
+.password-toggle-icon-svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* --- UPDATED: Submit Button with Loading State --- */
 .btn-register-submit {
-    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
-    color: var(--bg-color);
+    background: linear-gradient(90deg, #2dd4bf, #a78bfa);
+    color: #111827; /* --bg-color */
     font-size: 1rem;
     font-weight: 600;
     padding: 0.9rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: filter 0.2s, transform 0.2s;
+    transition: filter 0.2s, transform 0.2s, opacity 0.2s;
     margin-top: 1rem;
 }
-
 .btn-register-submit:hover {
     filter: brightness(1.1);
     transform: translateY(-2px);
 }
+.btn-register-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+}
 
+/* --- NEW: Error Message Styling --- */
+.error-message {
+    color: #f87171; /* A readable red */
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* --- NEW: Social Login Section --- */
+.social-login-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #6b7280;
+    margin: 1.5rem 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+.social-login-divider::before,
+.social-login-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #374151;
+}
+.social-login-divider:not(:empty)::before {
+    margin-right: .5em;
+}
+.social-login-divider:not(:empty)::after {
+    margin-left: .5em;
+}
+.social-login-buttons {
+    display: flex;
+    flex-direction: column;
+}
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #374151;
+    background-color: transparent;
+    color: #f9fafb;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-social:hover {
+    background-color: #374151;
+}
+.google-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* --- Login Link --- (No changes) */
 .login-link {
     text-align: center;
     margin-top: 2rem;
-    color: var(--text-secondary-color);
+    color: #9ca3af; /* --text-secondary-color */
     font-size: 0.9rem;
 }
-
 .login-link a {
-    color: var(--accent-color-1);
+    color: #2dd4bf; /* --accent-color-1 */
     font-weight: 500;
     text-decoration: none;
     cursor: pointer;
 }
-
 .login-link a:hover {
     text-decoration: underline;
 }
 
-
-/* --- Add these new styles for the password toggle --- */
-
-.password-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.password-input-wrapper input {
-    width: 100%;
-    /* Add some padding on the right to not overlap with the text */
-    padding-right: 4rem; 
-}
-
-.password-toggle-icon {
-    position: absolute;
-    right: 1rem; /* Position inside the input field */
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: var(--text-secondary-color);
-    font-size: 0.9rem;
-    font-weight: 500;
-    user-select: none; /* Prevents text from being selected on click */
-    transition: color 0.2s;
-}
-
-.password-toggle-icon:hover {
-    color: var(--text-color);
-}
-
-
-/* --- Responsive Design --- */
-/* Identical to LoginPage.css */
+/* --- Responsive Design --- (No changes) */
 @media (max-width: 768px) {
     .register-panel-left {
         display: none;
     }
-
     .register-panel-right {
         flex-basis: 100%;
     }
