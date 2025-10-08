@@ -1,262 +1,288 @@
-/* --- CSS Variables for easy theme management --- */
+/* === NEXIE LANDING PAGE - V3 MOBILE-FIRST === */
+
+/* --- 1. Root Variables & Global Styles --- */
 :root {
-    --bg-color: #0c0a09;
-    --text-color: #f2f2f2;
-    --text-secondary-color: #a8a29e;
-    --accent-color-1: #2dd4bf;
-    --accent-color-2: #a78bfa;
-    --accent-color-3: #f472b6;
-    --font-family: 'Inter', sans-serif;
+    --bg-dark: #111827;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --accent-1: #2dd4bf; /* Teal */
+    --accent-2: #a78bfa; /* Lavender */
+    --accent-3: #f472b6; /* Pink */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --container-padding: 1.5rem;
+    --container-width: 1100px;
 }
 
-/* --- Main Page Styling --- */
+body {
+    background-color: var(--bg-dark);
+}
+
 .landing-page {
-    height: 100vh;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
     font-family: var(--font-family);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
-/* --- Aurora Background Effect --- */
-.aurora-background {
+/* --- 2. Animated Gradient Background --- */
+.background-shapes {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
     z-index: 0;
-    filter: blur(100px);
 }
-
-.aurora-dot {
+.background-shapes > div {
     position: absolute;
     border-radius: 50%;
-    opacity: 0.6;
+    filter: blur(120px);
+    opacity: 0.3;
+}
+.shape-1 {
+    width: 400px; height: 400px;
+    background-color: var(--accent-1);
+    top: -50px; left: -100px;
+    animation: move 15s infinite alternate;
+}
+.shape-2 {
+    width: 500px; height: 500px;
+    background-color: var(--accent-2);
+    bottom: -100px; right: -150px;
+    animation: move 20s infinite alternate-reverse;
+}
+.shape-3 {
+    display: none; /* Hidden on mobile for performance */
+}
+@keyframes move {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(100px, 50px) scale(1.2); }
 }
 
-/* Positions and colors of the glowing dots */
-.aurora-dot:nth-child(1) {
-    width: 400px;
-    height: 400px;
-    background-color: var(--accent-color-1);
-    top: 10%;
-    left: 15%;
-    animation: move1 15s infinite alternate;
-}
-
-.aurora-dot:nth-child(2) {
-    width: 350px;
-    height: 350px;
-    background-color: var(--accent-color-2);
-    top: 50%;
-    left: 40%;
-    animation: move2 18s infinite alternate;
-}
-
-.aurora-dot:nth-child(3) {
-    width: 300px;
-    height: 300px;
-    background-color: var(--accent-color-3);
-    top: 25%;
-    left: 70%;
-    animation: move3 16s infinite alternate;
-}
-
-@keyframes move1 {
-    to { transform: translate(50px, 100px); }
-}
-@keyframes move2 {
-    to { transform: translate(-80px, -40px); }
-}
-@keyframes move3 {
-    to { transform: translate(40px, -60px); }
-}
-
-/* --- Navigation Bar --- */
-.navbar {
+/* --- 3. Base Layout & Navbar --- */
+.navbar, .hero-section, .features-section, .landing-footer {
     width: 100%;
-    max-width: 1200px;
-    padding: 1.5rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
     position: relative;
     z-index: 2;
 }
-
-.logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.nav-buttons {
+.navbar {
     display: flex;
-    gap: 0.75rem;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
 }
+.logo { font-size: 1.5rem; font-weight: 700; }
+.nav-buttons { display: flex; gap: 0.75rem; }
 
-/* --- Hero Section --- */
-.hero-content {
-    flex-grow: 1;
+/* --- 4. Hero Section --- */
+.hero-section {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 0 1rem;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+.hero-visual {
     position: relative;
-    z-index: 1;
+    width: 200px;
+    height: 200px;
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.hero-visual > div {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--accent-1);
+    animation: pulse 4s infinite ease-in-out;
+}
+.visual-circle-1 { width: 100%; height: 100%; opacity: 0.1; }
+.visual-circle-2 { width: 66%; height: 66%; opacity: 0.2; animation-delay: 0.5s; }
+.visual-circle-3 { width: 33%; height: 33%; opacity: 0.3; animation-delay: 1s; }
+@keyframes pulse {
+    0%, 100% { transform: scale(0.95); }
+    50% { transform: scale(1.05); }
 }
 
 .hero-title {
-    font-size: 5rem;
-    font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 0.5rem;
-    max-width: 800px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
 }
-
-/* Gradient Text with Shine Effect */
-.gradient-text {
-    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2), var(--accent-color-3));
+.animated-text-wrapper {
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-size: 200% auto;
-    animation: gradient-flow 8s ease-in-out infinite;
-    position: relative;
-    overflow: hidden;
+    min-height: 45px; /* Prevents layout jump */
     display: inline-block;
 }
-
-@keyframes gradient-flow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.hero-tagline {
-    font-size: 2.5rem;
-    font-weight: 500;
-    color: var(--text-secondary-color);
-    margin-bottom: 1.5rem;
-    min-height: 50px; /* Prevents layout jump */
-}
-
-.animated-text {
-    color: var(--text-color);
-    font-weight: 600;
-}
-
 .cursor {
     display: inline-block;
-    background-color: var(--accent-color-1);
-    margin-left: 4px;
-    width: 4px;
+    background: var(--accent-1);
+    margin-left: 2px;
+    width: 3px;
     animation: blink 1s infinite;
 }
-
 @keyframes blink { 50% { opacity: 0; } }
 
 .hero-description {
     font-size: 1.1rem;
-    font-weight: 400;
-    max-width: 600px;
-    margin: 0 auto 2.5rem auto;
+    color: var(--text-secondary);
     line-height: 1.6;
-    color: var(--text-secondary-color);
+    margin: 0 auto 2rem auto;
+    max-width: 500px;
 }
 
-/* --- Buttons --- */
+/* --- 5. Features Section --- */
+.features-section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 3rem;
+}
+.features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+.feature-card {
+    background: rgba(31, 41, 55, 0.3);
+    border: 1px solid rgba(55, 65, 81, 0.7);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+}
+.feature-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 1.5rem auto;
+    color: var(--accent-1);
+}
+.feature-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.feature-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* --- 6. Buttons & Footer --- */
 .btn {
     padding: 0.75rem 1.5rem;
     font-size: 0.9rem;
     font-weight: 600;
-    border-radius: 8px;
+    border-radius: 50px; /* Pill shape */
     border: 1px solid transparent;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
 }
-
-.btn-login {
+.btn-secondary {
     background-color: transparent;
-    color: var(--text-color);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
 }
-
-.btn-login:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+.btn-secondary:hover {
+    background-color: rgba(249, 250, 251, 0.1);
+    border-color: var(--text-primary);
 }
-
-.btn-register {
-    background-color: var(--text-color);
-    color: var(--bg-color);
+.btn-primary {
+    background-color: var(--text-primary);
+    color: var(--bg-dark);
 }
-
-.btn-register:hover {
-    background-color: #d4d4d4;
+.btn-primary:hover {
+    background-color: #d1d5db;
 }
-
 .btn-get-started {
-    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
-    color: var(--bg-color);
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+    color: var(--bg-dark);
     font-size: 1rem;
     padding: 1rem 2.5rem;
     border: none;
-    border-radius: 50px;
     box-shadow: 0 4px 20px rgba(167, 139, 250, 0.3);
 }
-
 .btn-get-started:hover {
-    transform: translateY(-3px) scale(1.02);
+    transform: translateY(-3px);
     box-shadow: 0 6px 25px rgba(167, 139, 250, 0.5);
+    filter: brightness(1.1);
 }
 
-/* --- Entry Animations --- */
-.animate-fade-in {
-    animation: fadeIn 1s ease-out forwards;
+.landing-footer {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
-.animate-fade-in-down {
-    animation: fadeInDown 0.8s ease-out forwards;
+/* --- 7. Tablet & Desktop Styles (Mobile-First) --- */
+@media (min-width: 768px) {
+    :root {
+        --container-padding: 2rem;
+    }
+    .hero-section {
+        flex-direction: row-reverse; /* Visual on left, text on right */
+        text-align: left;
+        align-items: center;
+        padding-top: 5rem;
+        padding-bottom: 5rem;
+        min-height: 90vh;
+    }
+    .hero-content {
+        flex: 1;
+    }
+    .hero-visual {
+        flex: 1;
+        width: auto; height: auto;
+        margin-bottom: 0;
+    }
+    .hero-title {
+        font-size: 3.5rem;
+    }
+    .animated-text-wrapper {
+        min-height: 60px;
+        display: inline-block;
+    }
+    .hero-description {
+        margin-left: 0;
+    }
+    .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+    .feature-card {
+        padding: 2rem;
+    }
+    .section-title {
+        font-size: 2.5rem;
+    }
+    .shape-3 { /* Enable third shape for larger screens */
+        display: block;
+        width: 350px; height: 350px;
+        background-color: var(--accent-3);
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        animation: move 25s infinite alternate;
+    }
 }
 
-.animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0; /* Set initial state for JS-free staggering */
-}
-
-.delay-1 { animation-delay: 0.2s; }
-.delay-2 { animation-delay: 0.4s; }
-
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* --- Responsive Design --- */
-@media (max-width: 768px) {
-    .hero-title { font-size: 3.5rem; }
-    .hero-tagline { font-size: 1.8rem; }
-    .hero-description { font-size: 1rem; }
-    .navbar { padding: 1rem; }
-}
-
-@media (max-width: 480px) {
-    .hero-title { font-size: 2.5rem; }
-    .hero-tagline { font-size: 1.5rem; }
-    .nav-buttons { display: none; } /* Hides nav buttons on very small screens */
+@media (min-width: 1024px) {
+    .hero-title {
+        font-size: 4rem;
+    }
+    .animated-text-wrapper {
+        min-height: 70px;
+    }
 }
