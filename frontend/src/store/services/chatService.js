@@ -22,6 +22,7 @@ export const asyncFetchUserChats = () => async (dispatch) => {
             withCredentials: true,
         });
         dispatch(chatsFetchSuccess(response.data)); // On success, dispatch data
+        return response.data;
     } catch (error) {
         const errorMessage = error.response?.data?.message || error.message;
         dispatch(chatsFetchFailure(errorMessage)); // On failure, dispatch error
@@ -39,6 +40,7 @@ export const asyncCreateNewChat = (title) => async (dispatch) => {
             { withCredentials: true }
         );
         dispatch(chatCreateSuccess(response.data)); // On success, dispatch new chat
+        asyncFetchUserChats(); // Refresh the chat list
          return response.data;
     } catch (error) {
         const errorMessage = error.response?.data?.message || error.message;
