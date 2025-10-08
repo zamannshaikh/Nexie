@@ -230,6 +230,7 @@
 
 .message-content {
     width: 100%;
+    line-height: 1.6;
 }
 .bot-wrapper .message-content {
     padding-top: 4px;
@@ -239,7 +240,6 @@
 .message-content ul,
 .message-content ol {
     margin-bottom: 1em;
-    line-height: 1.6; /* Slightly reduced line-height */
 }
 .message-content p:last-child { margin-bottom: 0; }
 .message-content h1, .message-content h2, .message-content h3 {
@@ -256,27 +256,47 @@
     border-radius: 4px;
     font-size: 85%;
     border: 1px solid var(--border-color);
+    font-family: "Fira Code", monospace;
 }
 
 
 /* --- 6. Code Blocks --- */
+/* --- MODIFICATION: Adjusted styles for highlighter --- */
 .code-block-wrapper {
-    background-color: #0d1117;
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    margin: 1em 0;
+    margin: 1.25em 0;
     overflow: hidden;
-    font-size: 0.85rem; /* Smaller code font on mobile */
 }
+
 .code-block-header {
-    display: flex; justify-content: space-between; align-items: center;
-    background-color: var(--bg-main);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-element); /* A slightly different color for header */
     padding: 0.6rem 1rem;
     font-size: 0.8rem;
     color: var(--text-secondary);
     border-bottom: 1px solid var(--border-color);
 }
-.copy-button:hover { background-color: var(--bg-element); color: var(--text-primary); }
+
+.copy-button {
+    background-color: var(--bg-hover);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+    background-color: var(--bg-element);
+    color: var(--text-primary);
+    border-color: #555;
+}
 
 
 /* --- 7. Chat Input Area (MOBILE REFINEMENTS) --- */
@@ -376,4 +396,3 @@
 }
 
 .disclaimer { font-size: 0.75rem; text-align: center; color: var(--text-secondary); padding-top: 0.75rem; }
-

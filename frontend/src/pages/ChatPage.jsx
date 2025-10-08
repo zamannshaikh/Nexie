@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactMarkdown from 'react-markdown'; // --- MODIFICATION: Added this import
+import ReactMarkdown from 'react-markdown';
+// --- MODIFICATION: Import syntax highlighter and a theme ---
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 import "../styles/ChatPage.css";
 import { useSelector, useDispatch } from 'react-redux';
 import { asyncFetchUserChats, asyncCreateNewChat } from '../store/services/chatService';
@@ -8,40 +12,13 @@ import { io } from "socket.io-client";
 import { asyncFetchMessages, asyncAddMessage } from "../store/services/messageService";
 
 // --- SVG Icons (No changes here) ---
-const NexieIcon = ({ size = 24 }) => ( 
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M2 17L12 22L22 17" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M2 12L12 17L22 12" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg> 
-);
-const UserIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-const SendIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-const MenuIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="4" y1="12" x2="20" y2="12"></line>
-    <line x1="4" y1="6" x2="20" y2="6"></line>
-    <line x1="4" y1="18" x2="20" y2="18"></line>
-  </svg>
-);
-const PlusIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-);
+const NexieIcon = ({ size = 24 }) => ( <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 17L12 22L22 17" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 12L12 17L22 12" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> );
+const UserIcon = () => ( <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> );
+const SendIcon = () => ( <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> );
+const MenuIcon = () => ( <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg> );
+const PlusIcon = () => ( <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> );
 
-// --- CodeBlock Component (No changes here) ---
+// --- MODIFICATION: Updated CodeBlock component to use SyntaxHighlighter ---
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopied] = useState(false);
 
@@ -52,6 +29,7 @@ const CodeBlock = ({ code, language }) => {
         setTimeout(() => setCopied(false), 2500);
       });
     } else {
+      // Fallback for older browsers
       const textArea = document.createElement("textarea");
       textArea.value = code;
       textArea.style.position = "fixed";
@@ -77,14 +55,33 @@ const CodeBlock = ({ code, language }) => {
           {copied ? 'Copied!' : 'Copy'}
         </button>
       </div>
-      <pre><code>{code}</code></pre>
+      <SyntaxHighlighter
+        language={language}
+        style={vscDarkPlus}
+        customStyle={{ 
+            margin: 0, 
+            padding: '1rem',
+            borderBottomLeftRadius: '0.5rem',
+            borderBottomRightRadius: '0.5rem',
+        }}
+        codeTagProps={{
+            style: {
+                fontFamily: '"Fira Code", "Fira Mono", monospace',
+                fontSize: '0.9rem',
+            }
+        }}
+        wrapLongLines={true}
+      >
+        {code}
+      </SyntaxHighlighter>
     </div>
   );
 };
 
+
 // --- Main ChatPage ---
 const ChatPage = () => {
-  // --- No changes to state, refs, or selectors ---
+  // --- No changes to state, refs, selectors, or useEffect hooks ---
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -103,7 +100,6 @@ const ChatPage = () => {
     ? messagesByChatId[activeChatId] 
     : [];
 
-  // --- No changes to useEffect hooks ---
   useEffect(() => {
     if (chatStatus === 'idle' && user) {
       dispatch(asyncFetchUserChats());
@@ -139,7 +135,6 @@ const ChatPage = () => {
     return () => newSocket.disconnect();
   }, [dispatch, activeChatId]);
 
-  // --- No changes to handler functions ---
   const handleNewChat = async () => {
     const title = prompt("Enter a title for your new chat:");
     if (title && title.trim() !== '') {
@@ -156,17 +151,13 @@ const ChatPage = () => {
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!userInput.trim() || isLoading) return;
-
     const newMessage = { sender: "user", text: userInput };
     dispatch(asyncAddMessage(activeChatId, newMessage));
     setUserInput("");
     setIsLoading(true);
-
     socket.emit("message", { chat: activeChatId, content: userInput });
   };
-
-  // --- MODIFICATION: Removed the entire `parseMessage` function ---
-
+  
   const activeChatTitle = chatsById[activeChatId]?.title || 'New Chat';
 
   const renderChatHistory = () => {
@@ -236,7 +227,7 @@ const ChatPage = () => {
                 </div>
               )}
              
-             {/* --- MODIFICATION: Updated message rendering logic --- */}
+             {/* Message rendering logic remains the same */}
              {messages.map((msg, index) => (
                 <div
                   key={msg._id || index}
@@ -248,7 +239,7 @@ const ChatPage = () => {
                         children={String(msg.text ?? "")}
                         components={{
                           code(props) {
-                            const {children, className, node, ...rest} = props
+                            const {children, className, ...rest} = props
                             const match = /language-(\w+)/.exec(className || '')
                             return match ? (
                               <CodeBlock
@@ -267,7 +258,6 @@ const ChatPage = () => {
                   </div>
                 </div>
               ))}
-
 
               {isLoading && (
                 <div className="message-wrapper bot-wrapper">

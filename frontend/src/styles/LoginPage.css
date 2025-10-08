@@ -1,191 +1,113 @@
-/* Reusing the same root variables for consistency */
+/* === NEXIE LOGIN UI - V3 MOBILE-FIRST REBUILD === */
+
+/* --- 1. Root Variables & Global Styles --- */
 :root {
-    --bg-color: #0c0a09;
-    --text-color: #f2f2f2;
-    --text-secondary-color: #a8a29e;
-    --accent-color-1: #2dd4bf;
-    --accent-color-2: #a78bfa;
-    --font-family: 'Inter', sans-serif;
+    --bg-dark: #111827;
+    --bg-darker: #0c0a09;
+    --bg-element: #27272a;
+    --border-color: #3f3f46;
+    --text-primary: #f2f2f2;
+    --text-secondary: #a8a29e;
+    --accent-1: #2dd4bf;
+    --accent-2: #a78bfa;
+    --error-color: #ef4444;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-.login-page-v2 {
+.login-page-wrapper {
     display: flex;
-    height: 100vh;
-    width: 100vw;
-    background-color: #111827; /* A neutral dark blue-gray */
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--bg-dark);
     font-family: var(--font-family);
+    color: var(--text-primary);
 }
 
-/* --- Left Branding Panel --- */
+/* --- 2. Left Branding Panel (Hidden by default, shown on desktop) --- */
 .login-panel-left {
-    flex: 1;
-    background-color: var(--bg-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    position: relative; /* Needed for pseudo-elements and overlays */
-    overflow: hidden; /* Ensures pattern and gradient don't overflow */
+    display: none;
+    background-color: var(--bg-darker);
+    position: relative;
+    overflow: hidden;
 }
 
-/* Subtle Geometric Pattern */
-.login-panel-left::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image:
-        linear-gradient(45deg, rgba(45,212,191,0.05) 25%, transparent 25%),
-        linear-gradient(-45deg, rgba(167,139,250,0.05) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, rgba(45,212,191,0.05) 75%),
-        linear-gradient(-45deg, transparent 75%, rgba(167,139,250,0.05) 75%);
-    background-size: 40px 40px; /* Size of the pattern cells */
-    opacity: 0.1; /* Very subtle */
-    z-index: 0;
-}
-
-/* Subtle Gradient Overlay for depth and animation */
-.login-panel-left::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent 50%),
-                radial-gradient(circle at bottom right, rgba(167,139,250,0.15), transparent 50%);
-    background-size: 200% 200%; /* Makes the gradient larger than the container */
-    animation: subtle-gradient-shift 15s ease infinite alternate; /* Slow, subtle movement */
-    opacity: 0.7; /* Controls the intensity of the gradient */
-    z-index: 1;
-}
-
-@keyframes subtle-gradient-shift {
-    0% { background-position: 0% 0%; }
-    100% { background-position: 100% 100%; }
-}
-
-
-.brand-content {
-    text-align: center;
-    color: var(--text-color);
-    position: relative; /* Ensures text is above background effects */
-    z-index: 2;
-}
-
-.brand-logo {
-    font-size: 3.5rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    /* Optional: Add a slight text shadow for better readability over subtle patterns */
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.brand-tagline {
-    font-size: 1.2rem;
-    color: var(--text-secondary-color);
-    font-weight: 400;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Optional */
-}
-
-/* --- Right Form Panel --- */
+/* --- 3. Right Form Panel (Takes full width on mobile) --- */
 .login-panel-right {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    padding: 2rem 1.5rem;
+    width: 100%;
 }
 
 .login-form-container {
     width: 100%;
     max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* This centers items horizontally */
 }
 
 .form-header {
     text-align: left;
     margin-bottom: 2rem;
+    width: 100%;
 }
-
 .form-header h2 {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    color: var(--text-color);
     margin-bottom: 0.5rem;
 }
-
 .form-header p {
-    color: var(--text-secondary-color);
+    color: var(--text-secondary);
 }
 
-/* --- Social Login Buttons --- */
-.social-login-buttons {
-    display: flex;
-    gap: 1rem;
+/* --- 4. Social Login & Divider --- */
+.social-login-provider {
     margin-bottom: 1.5rem;
-}
-
-.btn-social {
-    flex: 1;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background-color: #27272a;
-    border: 1px solid #3f3f46;
-    color: var(--text-color);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
+    justify-content: center; /* Centers the Google button */
+    width: 100%;
+    /* No need for max-width here, the button's width prop handles it */
 }
 
-.btn-social:hover {
-    background-color: #3f3f46;
-}
-
-/* --- Divider --- */
 .divider {
     display: flex;
     align-items: center;
     text-align: center;
-    color: var(--text-secondary-color);
+    color: var(--text-secondary);
     font-size: 0.8rem;
     margin-bottom: 1.5rem;
+    width: 100%;
 }
 .divider::before, .divider::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid #3f3f46;
+    border-bottom: 1px solid var(--border-color);
 }
 .divider span {
     padding: 0 1rem;
 }
 
-/* --- Form Elements --- */
-.login-form-v2 {
+/* --- 5. Form Elements --- */
+.login-form {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    width: 100%;
 }
 
-.input-group-v2 {
+.input-group {
     display: flex;
     flex-direction: column;
 }
 
-.input-group-v2 label, .label-wrapper {
+.input-group label, .label-wrapper {
     font-size: 0.9rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
-    color: var(--text-secondary-color);
+    color: var(--text-secondary);
 }
 
 .label-wrapper {
@@ -194,35 +116,59 @@
     align-items: center;
 }
 
-.input-group-v2 input {
-    background-color: #27272a;
-    border: 1px solid #3f3f46;
-    color: var(--text-color);
+.input-group input {
+    background-color: var(--bg-element);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     padding: 0.8rem 1rem;
     border-radius: 8px;
     font-size: 1rem;
+    font-family: inherit;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
-
-.input-group-v2 input:focus {
+.input-group input:focus {
     outline: none;
-    border-color: var(--accent-color-2);
+    border-color: var(--accent-2);
     box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
 }
 
-.forgot-password-v2 {
-    font-size: 0.85rem;
-    color: var(--accent-color-1);
-    text-decoration: none;
-    transition: filter 0.2s;
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
-.forgot-password-v2:hover {
-    filter: brightness(1.2);
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 3rem; 
+}
+.password-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0.25rem;
+}
+.password-toggle-btn:hover {
+    color: var(--text-primary);
 }
 
-.btn-login-submit-v2 {
-    background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
-    color: var(--bg-color);
+/* --- 6. Links, Buttons & Errors --- */
+.forgot-password-link {
+    font-size: 0.85rem;
+    color: var(--accent-1);
+    text-decoration: none;
+}
+.forgot-password-link:hover {
+    text-decoration: underline;
+}
+
+.btn-login-submit {
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+    color: var(--bg-darker);
     font-size: 1rem;
     font-weight: 600;
     padding: 0.9rem;
@@ -232,76 +178,91 @@
     transition: filter 0.2s, transform 0.2s;
     margin-top: 0.5rem;
 }
-
-.btn-login-submit-v2:hover {
+.btn-login-submit:hover {
     filter: brightness(1.1);
     transform: translateY(-2px);
 }
 
-.signup-link-v2 {
+.signup-link {
     text-align: center;
     margin-top: 2rem;
-    color: var(--text-secondary-color);
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
-
-.signup-link-v2 a {
-    color: var(--accent-color-1);
+.signup-link a {
+    color: var(--accent-1);
     font-weight: 500;
     text-decoration: none;
 }
-.signup-link-v2 a:hover {
+.signup-link a:hover {
     text-decoration: underline;
 }
 
-
-/* Add these styles to your LoginPage.css */
-
-.password-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-/* Make sure the input inside the wrapper takes full width */
-.password-input-wrapper input {
-    width: 100%;
-    /* Add padding to the right to prevent text from overlapping the icon */
-    padding-right: 3rem; 
-}
-
-.password-toggle-btn {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-secondary-color); /* Use a theme color */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.25rem;
-}
-
-.password-toggle-btn:hover {
-    color: var(--text-color);
-}
-
 .error-message {
-    color: #ef4444;
+    color: var(--error-color);
     font-size: 0.8rem;
     margin-top: 0.25rem;
 }
 
-/* --- Responsive Design --- */
-@media (max-width: 768px) {
+/* --- 7. Desktop Styles (using a media query) --- */
+@media (min-width: 768px) {
     .login-panel-left {
-        display: none; /* Hide the branding panel on smaller screens */
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
     }
-
     .login-panel-right {
-        flex-basis: 100%; /* The form panel takes the full width */
+        flex: 1;
+    }
+    .form-header h2 {
+        font-size: 2rem;
+    }
+    .login-panel-left::before, .login-panel-left::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 0;
+    }
+    .login-panel-left::before {
+        background-image:
+            linear-gradient(45deg, rgba(45,212,191,0.05) 25%, transparent 25%),
+            linear-gradient(-45deg, rgba(167,139,250,0.05) 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, rgba(45,212,191,0.05) 75%),
+            linear-gradient(-45deg, transparent 75%, rgba(167,139,250,0.05) 75%);
+        background-size: 40px 40px;
+        opacity: 0.1;
+    }
+    .login-panel-left::after {
+        background: radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent 50%),
+                    radial-gradient(circle at bottom right, rgba(167,139,250,0.15), transparent 50%);
+        background-size: 200% 200%;
+        animation: subtle-gradient-shift 15s ease infinite alternate;
+        opacity: 0.7;
+    }
+    @keyframes subtle-gradient-shift {
+        0% { background-position: 0% 0%; }
+        100% { background-position: 100% 100%; }
+    }
+    .brand-content {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+    }
+    .brand-logo {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    .brand-tagline {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        font-weight: 400;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     }
 }
