@@ -85,14 +85,25 @@ async function currentUserController(req,res) {
 
 
 async function logoutUser(req,res) {
-     req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Could not log out, please try again' });
-        }
-        res.clearCookie('connect.sid'); // Clears the session cookie
-        res.status(200).json({ message: 'User logged out successfully' });
-    });
-    
+     try {
+        // This controller assumes you are using cookies for session management (e.g., with JWT).
+        // The name of the cookie ('token' in this example) must match the name
+        // you set when the user logged in.
+        res.clearCookie('token', {
+            httpOnly: true, // Protects against XSS attacks
+            secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
+            sameSite: 'strict', // Helps mitigate CSRF attacks
+            expires: new Date(0) // Set the expiry date to the past to delete it instantly
+        });
+
+        // Send a success response to the client.
+        res.status(200).json({ message: "Logout successful." });
+
+    } catch (error) {
+        // If something goes wrong on the server, send an error response.
+        console.error("Error during logout:", error);
+        res.status(500).json({ message: "Server error during logout." });
+    }
 }
 
 

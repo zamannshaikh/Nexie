@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate} from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 // --- MODIFICATION: Import syntax highlighter and a theme ---
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -10,6 +11,7 @@ import { asyncFetchUserChats, asyncCreateNewChat } from '../store/services/chatS
 import { setActiveChat } from '../store/slices/chatSlice';
 import { io } from "socket.io-client";
 import { asyncFetchMessages, asyncAddMessage } from "../store/services/messageService";
+import { asyncLogoutUser } from '../store/services/userService';
 
 // --- SVG Icons (No changes here) ---
 const NexieIcon = ({ size = 24 }) => ( <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 17L12 22L22 17" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 12L12 17L22 12" stroke="#b0b0b0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> );
@@ -17,7 +19,13 @@ const UserIcon = () => ( <svg width="24" height="24" viewBox="0 0 24 24" fill="n
 const SendIcon = () => ( <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> );
 const MenuIcon = () => ( <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg> );
 const PlusIcon = () => ( <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> );
-
+const LogoutIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M16 17L21 12L16 7" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M21 12H9" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
 // --- MODIFICATION: Updated CodeBlock component to use SyntaxHighlighter ---
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopied] = useState(false);
@@ -91,6 +99,7 @@ const ChatPage = () => {
   const textareaRef = useRef(null);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.userReducer);
   const { chatsById, activeChatId, status: chatStatus } = useSelector((state) => state.chatReducer);
   const chatHistory = Object.values(chatsById);
@@ -158,6 +167,16 @@ const ChatPage = () => {
     socket.emit("message", { chat: activeChatId, content: userInput });
   };
   
+
+   const handleLogout = () => {
+        
+        console.log("Logout button clicked!");
+        dispatch(asyncLogoutUser());
+        navigate("/");
+        
+       
+    };
+
   const activeChatTitle = chatsById[activeChatId]?.title || 'New Chat';
 
   const renderChatHistory = () => {
@@ -216,6 +235,10 @@ const ChatPage = () => {
               <NexieIcon size={28} />
               <h1>Nexie </h1>
             </div>
+            {/* --- THIS IS THE NEW BUTTON --- */}
+        <button className="logout-button" onClick={handleLogout} title="Logout">
+            <LogoutIcon />
+        </button>
           </header>
 
           <div className="chat-log-wrapper">

@@ -152,6 +152,35 @@
 }
 .menu-button:hover { background-color: var(--bg-element); }
 
+
+/* --- Add this to your CSS file --- */
+.logout-button {
+    margin-left: auto; /* Pushes the button to the far right */
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.logout-button:hover {
+    background-color: var(--bg-element);
+    color: var(--text-primary);
+}
+
+.logout-button svg path {
+    transition: stroke 0.2s;
+}
+
+.logout-button:hover svg path {
+    stroke: var(--text-primary);
+}
+
 .header-title { display: flex; align-items: center; gap: 0.75rem; margin-left: 0.5rem; }
 .header-title h1 { font-size: 1rem; font-weight: 500; } /* Mobile font size adjusted */
 
