@@ -115,7 +115,7 @@ const loginWithGoogle = async (req, res) => {
 
         // 2. Check if user exists in your database
         let user = await userModel.findOne({ email });
-        console.log("User logged in via Google:", user._id);
+        
 
         // 3. If user doesn't exist, create a new one
         if (!user) {

@@ -19,9 +19,15 @@ const LoginPage = () => {
 
     const onSubmit = async (data) => {
         try {
-            await dispatch(asyncLoginUser(data.email, data.password));
-            reset();
+           const res= await dispatch(asyncLoginUser(data.email, data.password));
+           if(res){
             navigate("/chat");
+            reset();
+           } else{
+            alert("Login failed. Please check your credentials and try again.");
+           }
+            
+            
         } catch (err) {
             console.error("Login failed:", err);
         }
@@ -29,6 +35,7 @@ const LoginPage = () => {
 
     const handleGoogleSuccess = async (credentialResponse) => {
         const idToken = credentialResponse.credential;
+        console.log("Google Credential:", jwtDecode(credentialResponse.credential));
         try {
             await dispatch(asyncLoginWithGoogle(idToken));
             navigate("/chat");
