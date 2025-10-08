@@ -49,6 +49,19 @@ const chatSlice = createSlice({
             state.status = 'failed';
             state.error = action.payload;
         },
+        chatUpdateStart: (state) => {
+            state.status = 'loading';
+        },
+        chatUpdateSuccess: (state, action) => {
+            state.status = 'succeeded';
+            const updatedChat = action.payload;
+            // Find the chat by its ID and update it
+            state.chatsById[updatedChat._id] = updatedChat;
+        },
+        chatUpdateFailure: (state, action) => {
+            state.status = 'failed';
+            state.error = action.payload;
+        },
     },
 });
 
@@ -61,6 +74,9 @@ export const {
     chatCreateStart,
     chatCreateSuccess,
     chatCreateFailure,
+    chatUpdateStart,
+    chatUpdateSuccess,
+    chatUpdateFailure,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

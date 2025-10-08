@@ -67,6 +67,36 @@ async function deleteChat(req,res) {
 
 
 
+async function updateChatTitle(req,res) {
+     try {
+        const { chatId } = req.params;
+        const { title } = req.body;
+        const userId = req.user._id;
+
+        if (!title) {
+            return res.status(400).json({ error: "New title is required" });
+        }
+
+        const chat = await chatModel.findById(chatId);
+
+        // Security check: ensure chat exists and belongs to the user
+        if (!chat || chat.user.toString() !== userId.toString()) {
+            return res.status(403).json({ error: "Forbidden: You don't have access to this chat." });
+        }
+
+        chat.title = title;
+        await chat.save();
+
+        res.status(200).json(chat);
+
+    } catch (error) {
+        console.error("Error in updateChatTitle:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+
+
 
 
 
@@ -87,4 +117,4 @@ async function getMessages(req,res) {
 }
 
 
-module.exports = { createChat ,getUserChats,deleteChat,getMessages};
+module.exports = { createChat ,getUserChats,deleteChat,getMessages,updateChatTitle};

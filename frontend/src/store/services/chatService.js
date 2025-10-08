@@ -7,6 +7,9 @@ import {
     chatCreateStart,
     chatCreateSuccess,
     chatCreateFailure,
+     chatUpdateStart,
+    chatUpdateSuccess,
+    chatUpdateFailure
 } from '../slices/chatSlice';
 
 /**
@@ -40,5 +43,25 @@ export const asyncCreateNewChat = (title) => async (dispatch) => {
     } catch (error) {
         const errorMessage = error.response?.data?.message || error.message;
         dispatch(chatCreateFailure(errorMessage)); // On failure, dispatch error
+    }
+};
+
+
+
+
+
+export const asyncUpdateChatTitle = (chatId, title) => async (dispatch) => {
+    dispatch(chatUpdateStart()); // Dispatch a start action
+    try {
+        const response = await axios.patch(`/chats/updatechat/${chatId}`, 
+            { title: title },
+            { withCredentials: true }
+        );
+        // On success, dispatch the updated chat object
+        dispatch(chatUpdateSuccess(response.data)); 
+        return response.data;
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || error.message;
+        dispatch(chatUpdateFailure(errorMessage)); // On failure, dispatch error
     }
 };
