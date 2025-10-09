@@ -19,13 +19,10 @@ const LoginPage = () => {
 
     const onSubmit = async (data) => {
         try {
-           const res= await dispatch(asyncLoginUser(data.email, data.password));
-           if(res){
-            navigate("/chat");
-            reset();
-           } else{
-            alert("Login failed. Please check your credentials and try again.");
-           }
+         await dispatch(asyncLoginUser(data.email, data.password));
+         navigate("/chat");
+         reset();
+           
             
             
         } catch (err) {
