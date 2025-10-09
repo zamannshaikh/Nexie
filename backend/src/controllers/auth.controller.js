@@ -52,7 +52,7 @@ async function loginUser(req,res) {
         const token=jwt.sign({userId:user._id},process.env.JWT_SECRET);
         res.cookie('token',token,{
               httpOnly: true,
-  secure: false,         // true if using https
+  secure: true,         // true if using https
   sameSite: "lax"       // 👈 needed for cross-origin
         });
         res.status(200).json({message:"Login successful"});
@@ -91,8 +91,8 @@ async function logoutUser(req,res) {
         // you set when the user logged in.
         res.clearCookie('token', {
             httpOnly: true, // Protects against XSS attacks
-            secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
-            sameSite: 'strict', // Helps mitigate CSRF attacks
+            secure: true, // Only send over HTTPS in production
+            sameSite: 'lax', // Helps mitigate CSRF attacks
             expires: new Date(0) // Set the expiry date to the past to delete it instantly
         });
 
@@ -149,7 +149,7 @@ const loginWithGoogle = async (req, res) => {
 
          res.cookie('token', appToken, {
             httpOnly: true,
-            secure: false,   // true in production (https)
+            secure: true,   // true in production (https)
             sameSite: "lax"
         });
 
