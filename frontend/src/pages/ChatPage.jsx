@@ -208,6 +208,12 @@ const ChatPage = () => {
   const chatLogRef = useRef(null);
   const textareaRef = useRef(null);
 
+
+  
+
+  
+  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -219,6 +225,27 @@ const ChatPage = () => {
     (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
   );
   const messages = messagesByChatId[activeChatId] || [];
+
+  const prevChatCount = useRef(chatHistory.length);
+  
+
+
+
+  // This useEffect hook will run whenever chatHistory changes
+  useEffect(() => {
+    // Check if the number of chats has increased
+    if (chatHistory.length > prevChatCount.current) {
+      // The newest chat is the first one in the sorted list
+      const newestChat = chatHistory[0];
+      if (newestChat) {
+        // Dispatch the action to set the newest chat as active
+        dispatch(setActiveChat(newestChat._id));
+      }
+    }
+    // Update the ref with the current count for the next render
+    prevChatCount.current = chatHistory.length;
+  }, [chatHistory, dispatch]);
+
 
   // Effect to fetch initial user chats
   useEffect(() => {
@@ -296,15 +323,10 @@ const ChatPage = () => {
     }
   }, [userInput]);
 
-  const handleNewChat = async () => {
-  const resultAction = await dispatch(asyncCreateNewChat("New Chat"));
+  const handleNewChat =  () => {
+   dispatch(asyncCreateNewChat("New Chat"));
     dispatch(asyncFetchUserChats());
-     if (asyncCreateNewChat.fulfilled.match(resultAction)) {
-    const newChat = resultAction.payload;
-    
-    // 3. Dispatch setActiveChat with the new chat's ID to make it active.
-    dispatch(setActiveChat(newChat._id));
-  }
+  
     setSidebarOpen(false);
   };
 

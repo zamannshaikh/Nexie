@@ -41,8 +41,7 @@ function initSocketServer(httpServer) {
     }
   });
 
-  io.on("connection", (socket) => {
-    console.log("New client connected", socket.id, "User:", socket.user?.email);
+ 
 
     // CORRECTED socket.server.js
 
@@ -195,10 +194,8 @@ io.on("connection", (socket) => {
     });
   });
 
-    socket.on("disconnect", () => {
-      console.log("Client disconnected", socket.id);
-    });
-  });
+  
+ 
 
   return io;
 }
