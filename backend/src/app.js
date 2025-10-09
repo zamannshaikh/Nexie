@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const cors= require("cors")
 const helmet = require('helmet');
 const app=express();
+const path = require('path');
 
 
 // import routes
@@ -17,6 +18,7 @@ app.use(cors({
     origin:"http://localhost:5173",
     credentials:true
 }))
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 
@@ -32,7 +34,9 @@ app.use('/api/chats',chatRoutes);
 
 
 
-
+app.get("*name",(req,res)=>{
+  res.sendFile(path.join(__dirname,'public','index.html'))
+})
 
 
 module.exports=app;

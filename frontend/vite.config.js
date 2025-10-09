@@ -7,7 +7,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         // 1. Point this to your backend server
-        target: 'http://localhost:5000',
+        target: 'https://nexie-1inf.onrender.com',
         changeOrigin: true,
         // 2. We REMOVED the 'rewrite' line here.
         //    This is because your backend URL already includes /api.

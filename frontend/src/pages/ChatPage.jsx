@@ -256,7 +256,7 @@ const ChatPage = () => {
 
   // Effect to manage the socket connection
   useEffect(() => {
-    socket.current = io("http://localhost:5000/", { withCredentials: true });
+    socket.current = io("https://nexie-1inf.onrender.com/", { withCredentials: true });
     // socket.current.on("response", (data) => {
     //   const aiMessage = {
     //     _id: `bot-${Date.now()}`,
