@@ -53,7 +53,7 @@ async function loginUser(req,res) {
         res.cookie('token',token,{
               httpOnly: true,
   secure: true,         // true if using https
-  sameSite: "lax"       // 👈 needed for cross-origin
+  sameSite: "none"       // 👈 needed for cross-origin
         });
         res.status(200).json({message:"Login successful"});
         console.log("User logged in:",user);
@@ -92,7 +92,7 @@ async function logoutUser(req,res) {
         res.clearCookie('token', {
             httpOnly: true, // Protects against XSS attacks
             secure: true, // Only send over HTTPS in production
-            sameSite: 'lax', // Helps mitigate CSRF attacks
+            sameSite: 'none', // Helps mitigate CSRF attacks
             expires: new Date(0) // Set the expiry date to the past to delete it instantly
         });
 
@@ -150,7 +150,7 @@ const loginWithGoogle = async (req, res) => {
          res.cookie('token', appToken, {
             httpOnly: true,
             secure: true,   // true in production (https)
-            sameSite: "lax"
+            sameSite: "none"
         });
 
          res.status(200).json({
