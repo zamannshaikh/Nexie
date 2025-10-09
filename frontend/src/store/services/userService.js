@@ -39,6 +39,7 @@ export const asyncLoginUser = (email, password) => async (dispatch) => {
         // 2. Save user to Local Storage
         // We use JSON.stringify because local storage can only store strings.
         localStorage.setItem('user', JSON.stringify(user));
+        return user; 
 
     } catch (error) {
         console.error("Error logging in:", error);
