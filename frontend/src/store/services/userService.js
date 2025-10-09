@@ -43,6 +43,7 @@ export const asyncLoginUser = (email, password) => async (dispatch) => {
 
     } catch (error) {
         console.error("Error logging in:", error);
+        throw error; // Re-throw the error so the component can handle it
     }
 };
 
