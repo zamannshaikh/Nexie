@@ -32,6 +32,7 @@ Your main goal: 🫂 make users feel connected, understood, and uplifted while p
 
 async function generateResponse(chatHistory,username) {
     console.log("prompt Received in AI services : ",chatHistory)
+    console.log("Username Received in AI services : ",username)
 
 
     let dynamicSystemInstruction =  nexieSystemInstruction ;
