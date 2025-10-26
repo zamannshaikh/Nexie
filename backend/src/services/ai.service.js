@@ -52,7 +52,7 @@ Remember to use their name when appropriate to be friendly!`;
          model: "gemini-2.5-flash",
     contents: chatHistory,
     config:{
-        systemInstruction: nexieSystemInstruction,
+        systemInstruction: dynamicSystemInstruction,
         temperature:0.5
     }
     })
