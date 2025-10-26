@@ -34,7 +34,7 @@ async function generateResponse(chatHistory,username) {
     console.log("prompt Received in AI services : ",chatHistory)
 
 
-    let dynamicSystemInstruction = baseNexieSystemInstruction;
+    let dynamicSystemInstruction =  nexieSystemInstruction ;
 
     // 2. Dynamically add the user's name to the instruction
     // This gives the model the context it needs to fulfill your original instruction
