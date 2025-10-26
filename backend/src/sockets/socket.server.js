@@ -148,7 +148,7 @@ io.on("connection", (socket) => {
         console.log("Final history (sent to generateResponse):");
         console.log(JSON.stringify(finalHistory, null, 2));
 
-        const response = await generateResponse(finalHistory);
+        const response = await generateResponse(finalHistory, socket.user.name);
 
         // 9) Save model response and its vector in parallel
         const [responseMessage, responseVector] = await Promise.all([
