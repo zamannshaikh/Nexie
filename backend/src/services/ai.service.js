@@ -71,11 +71,12 @@ Remember to use their name when appropriate to be friendly!`;
 
     const response = await ai.models.generateContent({
          model: "gemini-2.5-flash",
-         tools:tools,
+         
     contents: chatHistory,
     config:{
         systemInstruction: dynamicSystemInstruction,
-        temperature:0.5
+        temperature:0.5,
+        tools:tools
     }
     })
 
