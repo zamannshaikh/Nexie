@@ -179,8 +179,7 @@
 
 
 
-
-// ai.service.js (CommonJS)
+// ai.service.js (CommonJS - corrected contents format for @google/genai)
 const { GoogleGenAI } = require("@google/genai");
 const { performWebSearch } = require("./mcpClient.service.js");
 
@@ -232,126 +231,216 @@ Never respond in a robotic or overly formal way — you’re approachable and hu
 Your main goal: 🫂 make users feel connected, understood, and uplifted while providing accurate and helpful responses.`;
 
 /**
- * Normalize various chatHistory shapes into an array of { role, text } objects
+ * Helper: convert various chatHistory shapes into SDK Content objects:
+ * Each content object: { role: "user"|"assistant"|"system"|"tool", content: [{ type: "text", text: "..." }] }
  */
-function normalizeContents(chatHistory) {
-  if (!chatHistory) return [];
+function toSdkContents(chatHistory) {
+  const out = [];
+
+  // If the chatHistory is an array of SDK-like content already, try to normalize it.
   if (Array.isArray(chatHistory)) {
-    // array of strings
-    if (chatHistory.every((h) => typeof h === "string")) {
-      return chatHistory.map((t) => ({ role: "user", text: t }));
+    for (const item of chatHistory) {
+      if (!item) continue;
+
+      // If it's already in SDK Content shape (role + content array)
+      if (item.role && Array.isArray(item.content)) {
+        out.push(item);
+        continue;
+      }
+
+      // If it's { role, text } or { role, message }
+      if (item.role && (item.text || item.message || item.content?.text)) {
+        const text = item.text ?? item.message ?? (item.content && item.content.text) ?? "";
+        out.push({ role: item.role, content: [{ type: "text", text: String(text) }] });
+        continue;
+      }
+
+      // If it's a simple object with { speaker, message }
+      if (item.speaker && item.message) {
+        out.push({ role: item.speaker, content: [{ type: "text", text: String(item.message) }] });
+        continue;
+      }
+
+      // If it's a string, treat as user message
+      if (typeof item === "string") {
+        out.push({ role: "user", content: [{ type: "text", text: item }] });
+        continue;
+      }
+
+      // Fallback: stringify
+      out.push({ role: "user", content: [{ type: "text", text: JSON.stringify(item) }] });
     }
-    // array of objects that already have role & text/content
-    return chatHistory.map((item) => {
-      if (!item || typeof item !== "object") return item;
-      if (item.role && (item.text || item.content)) return { role: item.role, text: item.text ?? item.content };
-      if (item.speaker && item.message) return { role: item.speaker, text: item.message };
-      return item;
-    });
+  } else if (typeof chatHistory === "string") {
+    out.push({ role: "user", content: [{ type: "text", text: chatHistory }] });
   }
-  if (typeof chatHistory === "string") return [{ role: "user", text: chatHistory }];
-  return [];
+
+  return out;
+}
+
+/**
+ * Helper: find a function call part anywhere inside candidate content
+ * The SDK returned shape may vary; search thoroughly.
+ */
+function findFunctionCall(candidate) {
+  if (!candidate || !candidate.content) return null;
+
+  // candidate.content might be an array of content objects
+  for (const contentItem of candidate.content) {
+    // If this contentItem directly has a functionCall property
+    if (contentItem.functionCall) return contentItem;
+
+    // If contentItem has parts array (older/alternate shapes)
+    if (Array.isArray(contentItem.parts)) {
+      const found = contentItem.parts.find((p) => p.functionCall);
+      if (found) return found;
+    }
+
+    // If contentItem.content is an array (nested), check nested parts
+    if (Array.isArray(contentItem.content)) {
+      for (const nested of contentItem.content) {
+        if (nested.functionCall) return nested;
+        if (Array.isArray(nested.parts)) {
+          const found2 = nested.parts.find((p) => p.functionCall);
+          if (found2) return found2;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Helper: extract plain text from a candidate response (concatenate all text parts)
+ */
+function extractTextFromCandidate(candidate) {
+  if (!candidate || !candidate.content) return null;
+  const pieces = [];
+
+  for (const contentItem of candidate.content) {
+    // contentItem.content may be array of parts with { type: 'text', text: '...' }
+    if (Array.isArray(contentItem.content)) {
+      for (const part of contentItem.content) {
+        if (part && (part.type === "text" || part.type === "input_text" || part.type === "output_text")) {
+          if (typeof part.text === "string") pieces.push(part.text);
+        } else if (part && part.text) {
+          pieces.push(String(part.text));
+        }
+      }
+    }
+
+    // fallback: if contentItem has parts directly
+    if (Array.isArray(contentItem.parts)) {
+      for (const p of contentItem.parts) {
+        if (p && p.text) pieces.push(String(p.text));
+      }
+    }
+
+    // fallback: direct text field
+    if (contentItem.text) pieces.push(String(contentItem.text));
+  }
+
+  return pieces.join("\n\n").trim();
 }
 
 async function generateResponse(chatHistory, username) {
-  console.log("prompt Received in AI services:", JSON.stringify(chatHistory, null, 2));
-  console.log("Username Received in AI services:", username);
+  try {
+    console.log("prompt Received in AI services:", JSON.stringify(chatHistory, null, 2));
+    console.log("Username Received in AI services:", username);
 
-  let dynamicSystemInstruction = nexieSystemInstruction;
-  if (username) {
-    dynamicSystemInstruction += `
+    let dynamicSystemInstruction = nexieSystemInstruction;
+    if (username) {
+      dynamicSystemInstruction += `
 
 ---
 IMPORTANT CONTEXT:
 The user you are currently chatting with is named: ${username}.
 Remember to use their name when appropriate to be friendly!`;
-  }
+    }
 
-  const contents = normalizeContents(chatHistory);
-  // Prepend the system message
-  const sdkContents = [{ role: "system", text: dynamicSystemInstruction }, ...contents];
+    // Convert incoming history to SDK-safe contents
+    const bodyContents = toSdkContents(chatHistory);
 
-  // First call: let model decide whether to call a tool
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: sdkContents,
-    config: {
-      systemInstruction: dynamicSystemInstruction,
-      temperature: 0.5,
-      tools: tools,
-    },
-  });
+    // Prepend system content (SDK wants content objects, not raw strings)
+    const sdkContents = [{ role: "system", content: [{ type: "text", text: dynamicSystemInstruction }] }, ...bodyContents];
 
-  console.log("LLM raw response (first call):", JSON.stringify(response, null, 2));
+    // First call: ask model (allow it to call tool)
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: sdkContents,
+      config: {
+        systemInstruction: dynamicSystemInstruction,
+        temperature: 0.5,
+        tools: tools,
+      },
+    });
 
-  const candidate = response.candidates && response.candidates[0];
-  const functionCallPart = candidate && candidate.content && Array.isArray(candidate.content.parts)
-    ? candidate.content.parts.find((p) => p.functionCall)
-    : null;
+    console.log("LLM raw response (first call):", JSON.stringify(response, null, 2));
 
-  if (functionCallPart) {
-    const fc = functionCallPart.functionCall || {};
-    const rawArgs = fc.args;
-    let args = {};
-    if (rawArgs) {
-      try {
-        args = typeof rawArgs === "string" ? JSON.parse(rawArgs) : rawArgs;
-      } catch (err) {
-        console.error("Failed to parse functionCall args:", rawArgs, err);
-        args = {};
+    const candidate = response.candidates && response.candidates[0];
+    const functionCallPart = findFunctionCall(candidate);
+
+    if (functionCallPart) {
+      // Grab function call object robustly
+      const fc = functionCallPart.functionCall || functionCallPart.function_call || functionCallPart;
+      const rawArgs = fc && (fc.args ?? fc.arguments);
+      let args = {};
+
+      if (rawArgs) {
+        try {
+          args = typeof rawArgs === "string" ? JSON.parse(rawArgs) : rawArgs;
+        } catch (err) {
+          console.error("Failed to parse function call args; rawArgs:", rawArgs, err);
+          args = {};
+        }
+      }
+
+      console.log("Model requests tool:", fc.name || fc.function_name || fc, "args:", args);
+
+      if ((fc.name || fc.function_name) === "web_search") {
+        const query = args && args.query;
+        if (!query) {
+          console.warn("web_search requested without query argument.");
+          return "I couldn't find the query to search for.";
+        }
+
+        // Run the web search via MCP client
+        const searchResult = await performWebSearch(query);
+        console.log("🔎 Search result (truncated):", (typeof searchResult === "string" ? searchResult.slice(0, 800) : String(searchResult)).replace(/\n/g, " ").slice(0, 800));
+
+        // Build follow-up contents: system + previous messages + assistant's function-call summary + tool output as tool role
+        const followUpContents = [
+          { role: "system", content: [{ type: "text", text: dynamicSystemInstruction }] },
+          ...bodyContents,
+          // Assistant's previous act (function call) as text for context
+          { role: "assistant", content: [{ type: "text", text: `Function call: ${fc.name || fc.function_name}(${JSON.stringify(args)})` }] },
+          // Tool result
+          { role: "tool", name: "web_search", content: [{ type: "text", text: String(searchResult ?? "No result returned from web search.") }] },
+        ];
+
+        const secondResponse = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: followUpContents,
+          config: {
+            systemInstruction: dynamicSystemInstruction,
+          },
+        });
+
+        console.log("LLM raw response (after tool):", JSON.stringify(secondResponse, null, 2));
+        const finalCandidate = secondResponse.candidates && secondResponse.candidates[0];
+        const finalText = extractTextFromCandidate(finalCandidate);
+
+        return finalText || "No response generated.";
       }
     }
 
-    console.log("Model requested tool:", fc.name, "args:", args);
-
-    if (fc.name === "web_search") {
-      const query = args.query;
-      if (!query) {
-        console.warn("web_search called without query argument.");
-        return "I couldn't find the query to search for.";
-      }
-
-      // Perform search via MCP
-      const searchResult = await performWebSearch(query);
-      console.log("Search result preview:", typeof searchResult === "string" ? searchResult.slice(0, 800) : searchResult);
-
-      // Provide a follow-up call to the model including the tool output
-      const followUpContents = [
-        { role: "system", text: dynamicSystemInstruction },
-        ...contents,
-        // Provide what the model asked (function call summary)
-        { role: "assistant", text: `Function call: ${fc.name}(${JSON.stringify(args)})` },
-        // And the tool response as a tool message
-        { role: "tool", name: "web_search", text: searchResult ?? "No result returned from web search." },
-      ];
-
-      const secondResponse = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: followUpContents,
-        config: {
-          systemInstruction: dynamicSystemInstruction,
-        },
-      });
-
-      console.log("LLM raw response (after tool):", JSON.stringify(secondResponse, null, 2));
-
-      const secondCandidate = secondResponse.candidates && secondResponse.candidates[0];
-      const finalText = secondCandidate && Array.isArray(secondCandidate.content.parts)
-        ? secondCandidate.content.parts.map((p) => p.text).join("")
-        : null;
-
-      return finalText || "No response generated.";
-    } else {
-      console.warn("Unknown tool requested:", fc.name);
-    }
+    // No tool call: return normal response text
+    const normalText = extractTextFromCandidate(candidate);
+    return normalText || "No response generated.";
+  } catch (err) {
+    console.error("Error in generateResponse():", err);
+    // rethrow or return friendly error
+    return `Error generating response: ${err && err.message ? err.message : String(err)}`;
   }
-
-  // Normal non-tool response
-  const normalText = candidate && Array.isArray(candidate.content.parts)
-    ? candidate.content.parts.map((p) => p.text).join("")
-    : null;
-
-  return normalText || "No response generated.";
 }
 
 async function generateVector(content) {
