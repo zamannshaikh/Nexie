@@ -3,6 +3,27 @@ const  { GoogleGenAI } =require("@google/genai")
 const ai = new GoogleGenAI({});
 
 
+const tools = [
+  {
+    functionDeclarations: [
+      {
+        name: "web_search",
+        description: "Search the real-time web for information, news, or facts that are not in your training data.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            query: {
+              type: "STRING",
+              description: "The search query, e.g., 'current price of bitcoin' or 'who won the super bowl 2024'",
+            },
+          },
+          required: ["query"],
+        },
+      },
+    ],
+  },
+];
+
 
 
 
@@ -50,13 +71,59 @@ Remember to use their name when appropriate to be friendly!`;
 
     const response = await ai.models.generateContent({
          model: "gemini-2.5-flash",
+         tools:tools,
     contents: chatHistory,
     config:{
         systemInstruction: dynamicSystemInstruction,
         temperature:0.5
     }
     })
-    return response.text;
+
+    // B. CHECK FOR TOOL CALL
+    const candidate = result.candidates?.[0];
+    const functionCallPart = candidate?.content?.parts?.find(part => part.functionCall);
+
+    if (functionCallPart) {
+        const { name, args } = functionCallPart.functionCall;
+        console.log(`🤖 Nexie wants to call tool: ${name}`);
+
+        if (name === "web_search") {
+            // --- DYNAMIC IMPORT FIX ---
+            // Because we are mixing require() and import(), we use import() here
+            const { performWebSearch } = await import("./mcpClientService.js");
+
+            // 1. Execute the tool via MCP
+            const searchResult = await performWebSearch(args.query);
+
+            // 2. Construct new history
+            const newHistory = [
+                ...chatHistory,
+                { role: "model", parts: [functionCallPart] }, // What Gemini asked
+                {
+                    role: "user",
+                    parts: [{
+                        functionResponse: {
+                            name: "web_search",
+                            response: { name: "web_search", content: searchResult }
+                        }
+                    }]
+                }
+            ];
+
+            // 3. Second call to Gemini for final answer
+            const secondResponse = await ai.models.generateContent({
+                model: "gemini-2.0-flash-exp",
+                tools: tools,
+                contents: newHistory,
+                config: { systemInstruction: dynamicSystemInstruction }
+            });
+
+            return secondResponse.text();
+        }
+    }
+
+    return result.text();
+   
 }
 
 
