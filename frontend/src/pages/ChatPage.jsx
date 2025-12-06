@@ -234,19 +234,19 @@ const ChatPage = () => {
 
 
   // This useEffect hook will run whenever chatHistory changes
-  useEffect(() => {
-    // Check if the number of chats has increased
-    if (chatHistory.length > prevChatCount.current) {
-      // The newest chat is the first one in the sorted list
-      const newestChat = chatHistory[0];
-      if (newestChat) {
-        // Dispatch the action to set the newest chat as active
-        dispatch(setActiveChat(newestChat._id));
-      }
-    }
-    // Update the ref with the current count for the next render
-    prevChatCount.current = chatHistory.length;
-  }, [chatHistory, dispatch]);
+  // useEffect(() => {
+  //   // Check if the number of chats has increased
+  //   if (chatHistory.length > prevChatCount.current) {
+  //     // The newest chat is the first one in the sorted list
+  //     const newestChat = chatHistory[0];
+  //     if (newestChat) {
+  //       // Dispatch the action to set the newest chat as active
+  //       dispatch(setActiveChat(newestChat._id));
+  //     }
+  //   }
+  //   // Update the ref with the current count for the next render
+  //   prevChatCount.current = chatHistory.length;
+  // }, [chatHistory, dispatch]);
 
 
   // Effect to fetch initial user chats
@@ -325,13 +325,20 @@ const ChatPage = () => {
     }
   }, [userInput]);
 
-  const handleNewChat = async () => {
+ const handleNewChat = async () => {
   try {
-    // 1. Wait for creation to finish successfully
-    await dispatch(asyncCreateNewChat("New Chat")).unwrap();
-    
-    // 2. Now it is safe to fetch
+    // 1. Create the chat and capture the returned data immediately
+    const newChatAction = await dispatch(asyncCreateNewChat("New Chat"));
+    const newChat = newChatAction.payload; // This is the actual chat object from backend
+
+    // 2. Update the list in the background (so the sidebar fills up)
     dispatch(asyncFetchUserChats());
+
+    // 3. CRITICAL STEP: Set the active chat manually right now.
+    // We don't wait for the fetch; we just force the UI to switch.
+    if (newChat && newChat._id) {
+      dispatch(setActiveChat(newChat._id));
+    }
     
     setSidebarOpen(false);
   } catch (error) {
