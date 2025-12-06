@@ -118,11 +118,14 @@ Remember to use their name when appropriate to be friendly!`;
                 config: { systemInstruction: dynamicSystemInstruction }
             });
 
-            return secondResponse.text();
+            const secondCandidate = secondResponse.candidates?.[0];
+            return secondCandidate?.content?.parts?.map(p => p.text).join("") || "No response generated.";
         }
     }
 
-    return response.text();
+    // --- SCENARIO B: NORMAL CONVERSATION ---
+    // FIX 2: Handle text extraction for Normal Response
+    return candidate?.content?.parts?.map(p => p.text).join("") || "No response generated.";
    
 }
 
