@@ -1,54 +1,54 @@
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import path from "path";
-import { fileURLToPath } from "url";
+// CommonJS file
 
-// Helper to get current directory in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const path = require("path");
 
 let client = null;
 
-export const getMcpClient = async () => {
-  // If we already have a connection, reuse it (Singleton pattern)
+async function getMcpClient() {
   if (client) return client;
 
-  // 1. Point to your specific server file
-  // Make sure the filename matches exactly what you created!
+  // Dynamically import the ESM-only SDK modules
+  // (works from CommonJS; avoid top-level import to keep compatibility)
+  const clientModule = await import("@modelcontextprotocol/sdk/client/index.js");
+  const stdioModule = await import("@modelcontextprotocol/sdk/client/stdio.js");
+
+  const { Client } = clientModule;
+  const { StdioClientTransport } = stdioModule;
+
+  // __dirname is available in CommonJS — no need for fileURLToPath(import.meta.url)
   const serverScriptPath = path.resolve(__dirname, "./tavilySearch.service.js");
 
-  // 2. Spawn the server as a background process
-  // This runs: "node services/tavilySearchService.js"
   const transport = new StdioClientTransport({
     command: "node",
     args: [serverScriptPath],
-    env: { ...process.env } // Pass environment variables (API Keys) to the child process
+    env: { ...process.env },
   });
 
-  client = new Client(
-    { name: "Nexie-Backend", version: "1.0.0" },
-    { capabilities: {} }
-  );
+  client = new Client({ name: "Nexie-Backend", version: "1.0.0" }, { capabilities: {} });
 
   console.log("🔌 Spawning Tavily MCP Server...");
   await client.connect(transport);
   return client;
-};
+}
 
-// Wrapper function to make calling it easy
-export const performWebSearch = async (query) => {
+async function performWebSearch(query) {
   try {
     const mcp = await getMcpClient();
-    
-    // Call the 'web_search' tool defined in your server file
+
     const result = await mcp.callTool({
       name: "web_search",
-      arguments: { query: query }
+      arguments: { query },
     });
 
-    return result.content[0].text;
+    // safe access and return text
+    return result?.content?.[0]?.text ?? "No results";
   } catch (error) {
     console.error("MCP Search Error:", error);
     return "Error: Could not perform search.";
   }
+}
+
+module.exports = {
+  getMcpClient,
+  performWebSearch,
 };

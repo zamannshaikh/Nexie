@@ -1,4 +1,5 @@
 const  { GoogleGenAI } =require("@google/genai")
+const { performWebSearch } = require("./mcpClient.service.js");
 
 const ai = new GoogleGenAI({});
 
@@ -10,10 +11,10 @@ const tools = [
         name: "web_search",
         description: "Search the real-time web for information, news, or facts that are not in your training data.",
         parameters: {
-          type: "OBJECT",
+          type: "object",
           properties: {
             query: {
-              type: "STRING",
+              type: "string",
               description: "The search query, e.g., 'current price of bitcoin' or 'who won the super bowl 2024'",
             },
           },
@@ -85,7 +86,15 @@ Remember to use their name when appropriate to be friendly!`;
     const functionCallPart = candidate?.content?.parts?.find(part => part.functionCall);
 
     if (functionCallPart) {
-        const { name, args } = functionCallPart.functionCall;
+        const { name, args: rawArgs } = functionCallPart.functionCall;
+let args;
+try {
+  args = typeof rawArgs === "string" ? JSON.parse(rawArgs) : rawArgs;
+} catch (e) {
+  console.error("Failed to parse function call args:", rawArgs, e);
+  args = {};
+}
+
         console.log(`🤖 Nexie wants to call tool: ${name}`);
 
         if (name === "web_search") {
@@ -119,6 +128,10 @@ Remember to use their name when appropriate to be friendly!`;
                 config: { systemInstruction: dynamicSystemInstruction }
             });
 
+
+            console.log("LLM raw response:", JSON.stringify(response, null, 2));
+
+
             const secondCandidate = secondResponse.candidates?.[0];
             return secondCandidate?.content?.parts?.map(p => p.text).join("") || "No response generated.";
         }
@@ -126,6 +139,9 @@ Remember to use their name when appropriate to be friendly!`;
 
     // --- SCENARIO B: NORMAL CONVERSATION ---
     // FIX 2: Handle text extraction for Normal Response
+
+    console.log("LLM raw response:", JSON.stringify(response, null, 2));
+
     return candidate?.content?.parts?.map(p => p.text).join("") || "No response generated.";
    
 }
