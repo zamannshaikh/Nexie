@@ -16,6 +16,8 @@ import { messageAdd } from "../store/slices/messageSlice";
 import { asyncFetchMessages } from "../store/services/messageService";
 import { asyncLogoutUser } from "../store/services/userService";
 import { io } from "socket.io-client";
+// You need to import your store here to prevent stale closures in the socket listener
+import { store } from "../store/store";
 
 // --- ICONS and CODEBLOCK (No Changes) ---
 const NexieIcon = ({ size = 24 }) => (
@@ -323,13 +325,19 @@ const ChatPage = () => {
     }
   }, [userInput]);
 
-  const handleNewChat =  () => {
-   dispatch(asyncCreateNewChat("New Chat"));
+  const handleNewChat = async () => {
+  try {
+    // 1. Wait for creation to finish successfully
+    await dispatch(asyncCreateNewChat("New Chat")).unwrap();
+    
+    // 2. Now it is safe to fetch
     dispatch(asyncFetchUserChats());
-  
+    
     setSidebarOpen(false);
-  };
-
+  } catch (error) {
+    console.error("Failed to create chat", error);
+  }
+};
   const handleLogout = () => {
     dispatch(asyncLogoutUser());
     navigate("/");
@@ -525,5 +533,4 @@ const ChatPage = () => {
 };
 export default ChatPage;
 
-// You need to import your store here to prevent stale closures in the socket listener
-import { store } from "../store/store";
+
