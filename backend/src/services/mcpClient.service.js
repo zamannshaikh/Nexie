@@ -15,7 +15,7 @@ export const getMcpClient = async () => {
 
   // 1. Point to your specific server file
   // Make sure the filename matches exactly what you created!
-  const serverScriptPath = path.resolve(__dirname, "./tavilySearchService.js");
+  const serverScriptPath = path.resolve(__dirname, "./tavilySearch.service.js");
 
   // 2. Spawn the server as a background process
   // This runs: "node services/tavilySearchService.js"
