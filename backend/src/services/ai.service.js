@@ -80,7 +80,7 @@ Remember to use their name when appropriate to be friendly!`;
     })
 
     // B. CHECK FOR TOOL CALL
-    const candidate = result.candidates?.[0];
+    const candidate = response.candidates?.[0];
     const functionCallPart = candidate?.content?.parts?.find(part => part.functionCall);
 
     if (functionCallPart) {
@@ -112,7 +112,7 @@ Remember to use their name when appropriate to be friendly!`;
 
             // 3. Second call to Gemini for final answer
             const secondResponse = await ai.models.generateContent({
-                model: "gemini-2.0-flash-exp",
+                model: "gemini-2.5-flash",
                 tools: tools,
                 contents: newHistory,
                 config: { systemInstruction: dynamicSystemInstruction }
@@ -122,7 +122,7 @@ Remember to use their name when appropriate to be friendly!`;
         }
     }
 
-    return result.text();
+    return response.text();
    
 }
 
