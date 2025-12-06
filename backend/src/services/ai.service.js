@@ -91,7 +91,7 @@ Remember to use their name when appropriate to be friendly!`;
         if (name === "web_search") {
             // --- DYNAMIC IMPORT FIX ---
             // Because we are mixing require() and import(), we use import() here
-            const { performWebSearch } = await import("./mcpClientService.js");
+            const { performWebSearch } = await import("./mcpClient.service.js");
 
             // 1. Execute the tool via MCP
             const searchResult = await performWebSearch(args.query);
