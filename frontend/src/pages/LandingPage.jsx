@@ -8,13 +8,13 @@ const PuzzleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" vie
 const ChatIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193l-3.72 3.72a1.125 1.125 0 01-1.59 0L12 18.75h-2.25m-2.25-3l-3.72 3.72a1.125 1.125 0 01-1.59 0L2.25 18.75" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 15.75v-3.75m0 0a3.75 3.75 0 00-7.5 0M12 12v-3.75a3.75 3.75 0 017.5 0" /></svg>;
 
 const LandingPage = () => {
-    // Typing animation logic remains the same
+    
     const [text, setText] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const [loopNum, setLoopNum] = useState(0);
     const [typingSpeed, setTypingSpeed] = useState(120);
 
-    // NEW: Updated words to reflect broader capabilities
+    
     const wordsToRotate = ["Code & Curiosity", "Work & Wonder", "Logic & Dreams", "Projects & Passion"];
     const navigate=useNavigate();
 
