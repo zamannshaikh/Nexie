@@ -16,7 +16,7 @@ const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
+// handling login with email
     const onSubmit = async (data) => {
         try {
          await dispatch(asyncLoginUser(data.email, data.password));
@@ -29,7 +29,7 @@ const LoginPage = () => {
             console.error("Login failed:", err);
         }
     };
-
+// funtion to handle login with google
     const handleGoogleSuccess = async (credentialResponse) => {
         const idToken = credentialResponse.credential;
         console.log("Google Credential:", jwtDecode(credentialResponse.credential));
