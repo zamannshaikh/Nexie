@@ -6,6 +6,8 @@ const userModel = require("../models/user.model");
 const { generateResponse, generateVector } = require("../services/ai.service");
 const messageModel = require("../models/message.model");
 const { createMemory, queryMemory } = require("../services/vector.service");
+// Add this line at the top of socket.server.js
+const { HumanMessage, AIMessage } = require("@langchain/core/messages");
 
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {
@@ -93,30 +95,33 @@ io.on("connection", (socket) => {
           }
         }).catch(err => console.error("Memory store error:", err));
 
-        // 4) Fetch recent messages for short-term memory
-        const MAX_SHORT = 10;
+       const MAX_SHORT = 10;
         const recentMessages = await messageModel.find({ chat: payload.chat })
-          .sort({ createdAt: -1 })
+          .sort({ createdAt: -1 }) // Get newest first
           .limit(MAX_SHORT)
           .lean();
-        recentMessages.reverse(); // oldest -> newest
+        
+        recentMessages.reverse(); // Now oldest -> newest
 
         // 5) Build short-term history (the current conversation)
-        const shortTermHistory = recentMessages.map(m => ({
-          role: m.role === "model" ? "model" : "user",
-          parts: [{ text: m.content }]
-        }));
+        const shortTermHistory = recentMessages
+          .filter(m => m._id.toString() !== message._id.toString()) 
+          .map(m => {
+            if (m.role === "user") {
+              return new HumanMessage(m.content);
+            } else {
+              return new AIMessage(m.content);
+            }
+          });
 
         // 6) Consolidate Long-Term Memory into a single context string
-        let longTermMemoryContext = "No relevant past context found.";
+       let longTermMemoryContext = "No relevant past context found.";
         if (memoryMatches && memoryMatches.length > 0) {
-          // Get the actual message content from MongoDB using the IDs from Pinecone
           const memoryMessageIds = memoryMatches.map(m => m.id);
           const longTermMessages = await messageModel.find({
             _id: { $in: memoryMessageIds }
           }).sort({ createdAt: 'asc' }).lean();
 
-          // Format the messages into a single, readable block for the LLM
           longTermMemoryContext = "Here are relevant snippets from our past conversations:\n---\n";
           longTermMemoryContext += longTermMessages
             .map(m => `${m.role === 'user' ? 'User asked' : 'You answered'}: ${m.content}`)
@@ -124,31 +129,24 @@ io.on("connection", (socket) => {
         }
 
         // 7) Build the final history with the robust "Context Injection" structure
-        const finalHistory = [];
+        const langchainHistory = [];
 
         // Add the consolidated context block as the first user message
-        finalHistory.push({
-            role: "user",
-            parts: [{
-                text: `${longTermMemoryContext}\n\nINSTRUCTION: Using the context from our past conversations above and the immediate messages below, please provide a helpful and relevant response to my final message.`
-            }]
-        });
+        langchainHistory.push(new HumanMessage(
+            `${longTermMemoryContext}\n\nINSTRUCTION: Using the context above, answer the user's latest message.`
+        ));
 
         // Add a "priming" model message to acknowledge the context and set up the conversation
-        finalHistory.push({
-            role: "model",
-            parts: [{ text: "Okay, I have reviewed the context. I am ready to continue our current conversation." }]
-        });
-        
+        langchainHistory.push(new AIMessage("Okay, I've reviewed the context. I'm ready!"));
+        langchainHistory.push(...shortTermHistory);
         // Add the short-term conversation history
-        finalHistory.push(...shortTermHistory);
+        langchainHistory.push(new HumanMessage(payload.content));
 
 
         // 8) Log for debugging and call the model
         console.log("Final history (sent to generateResponse):");
-        console.log(JSON.stringify(finalHistory, null, 2));
-
-        const response = await generateResponse(finalHistory, socket.user.name);
+        console.log("Sending to LangGraph:", langchainHistory.length, "messages");
+     const response = await generateResponse(langchainHistory, socket.user.name);
 
         // 9) Save model response and its vector in parallel
         const [responseMessage, responseVector] = await Promise.all([

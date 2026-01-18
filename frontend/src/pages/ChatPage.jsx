@@ -161,6 +161,8 @@ const LogoutIcon = () => (
     />
   </svg>
 );
+
+const BACKEND_URI ="http://localhost:5000";
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopied] = useState(false);
   const copyToClipboard = () => {
@@ -258,7 +260,7 @@ const ChatPage = () => {
 
   // Effect to manage the socket connection
   useEffect(() => {
-    socket.current = io("https://nexie-1inf.onrender.com/", { withCredentials: true });
+    socket.current = io(BACKEND_URI, { withCredentials: true });
     // socket.current.on("response", (data) => {
     //   const aiMessage = {
     //     _id: `bot-${Date.now()}`,
