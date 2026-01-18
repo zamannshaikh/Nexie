@@ -162,7 +162,7 @@ const LogoutIcon = () => (
   </svg>
 );
 
-const BACKEND_URI ="http://localhost:5000";
+const BACKEND_URI = import.meta.env.BACKEND_URI;
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopied] = useState(false);
   const copyToClipboard = () => {
