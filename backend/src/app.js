@@ -15,7 +15,7 @@ const chatRoutes=require("./routes/chat.route");
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin:"https://nexie-1inf.onrender.com",
+    origin:["https://nexie-1inf.onrender.com","https://nexie.in","https://www.nexie.in"],
     credentials:true
 }))
 app.use(express.static(path.join(__dirname, '..', 'public')));
