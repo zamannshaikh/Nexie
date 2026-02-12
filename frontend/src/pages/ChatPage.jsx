@@ -331,6 +331,15 @@ const ChatPage = () => {
     e.preventDefault();
     if (!userInput.trim() || isLoading) return;
 
+    console.log("Socket ID:", socket.current?.id);
+console.log("Is Connected?:", socket.current?.connected); // <--- THIS IS CRITICAL
+
+if (!socket.current?.connected) {
+    console.error("Socket is NOT connected. Attempting to reconnect...");
+    socket.current.connect();
+    return; // Don't try to send if disconnected
+}
+
     const activeChat = chatsById[activeChatId];
     if (!activeChat) {
       console.error("Cannot send message, no active chat selected.");
@@ -353,7 +362,9 @@ const ChatPage = () => {
 
     // THIS IS THE FIX: Dispatch the synchronous action for an instant UI update.
     dispatch(messageAdd({ chatId: activeChatId, message: userMessage }));
-    socket.current.emit("message", { chat: activeChatId, content: userInput });
+    socket.current.emit("message", { chat: activeChatId, content: userInput },(response)=>{
+      console.log("Server acknowledged message:", response);
+    });
 
     setUserInput("");
     setIsLoading(true);
