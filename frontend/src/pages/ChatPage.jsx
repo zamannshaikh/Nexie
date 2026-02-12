@@ -162,7 +162,7 @@ const LogoutIcon = () => (
   </svg>
 );
 
-const BACKEND_URI = import.meta.env.BACKEND_URI;
+const BACKEND_URI = import.meta.env.VITE_BACKEND_URI;
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopied] = useState(false);
   const copyToClipboard = () => {
