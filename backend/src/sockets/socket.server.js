@@ -12,7 +12,12 @@ const { HumanMessage, AIMessage } = require("@langchain/core/messages");
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: [
+      "https://nexie.in", 
+      "https://www.nexie.in",
+      "https://nexie-1inf.onrender.com", // Keep your render URL if needed
+      "http://localhost:5173" // Keep localhost for development
+    ],
       methods: ["GET", "POST"],
       credentials: true
     }
