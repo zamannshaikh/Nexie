@@ -235,20 +235,6 @@ const ChatPage = () => {
 
 
 
-  // This useEffect hook will run whenever chatHistory changes
-  // useEffect(() => {
-  //   // Check if the number of chats has increased
-  //   if (chatHistory.length > prevChatCount.current) {
-  //     // The newest chat is the first one in the sorted list
-  //     const newestChat = chatHistory[0];
-  //     if (newestChat) {
-  //       // Dispatch the action to set the newest chat as active
-  //       dispatch(setActiveChat(newestChat._id));
-  //     }
-  //   }
-  //   // Update the ref with the current count for the next render
-  //   prevChatCount.current = chatHistory.length;
-  // }, [chatHistory, dispatch]);
 
 
   // Effect to fetch initial user chats
@@ -260,22 +246,11 @@ const ChatPage = () => {
 
   // Effect to manage the socket connection
   useEffect(() => {
-    socket.current = io(BACKEND_URI, { withCredentials: true });
-    // socket.current.on("response", (data) => {
-    //   const aiMessage = {
-    //     _id: `bot-${Date.now()}`,
-    //     sender: "bot",
-    //     text:
-    //       typeof data === "string"
-    //         ? data
-    //         : data?.content || JSON.stringify(data),
-    //   };
-    //   // We need to get the activeChatId from the store *inside* the listener
-    //   // to avoid stale closures.
-    //   const currentActiveChatId = store.getState().chatReducer.activeChatId;
-    //   dispatch(messageAdd({ chatId: currentActiveChatId, message: aiMessage }));
-    //   setIsLoading(false);
-    // });
+    socket.current = io(BACKEND_URI, { 
+      withCredentials: true ,
+      transports: ['websocket'],
+    });
+ 
    
      // NEW LISTENER for the "working" signal
     const handleResponsePending = (data) => {
