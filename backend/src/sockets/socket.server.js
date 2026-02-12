@@ -57,7 +57,9 @@ function initSocketServer(httpServer) {
 io.on("connection", (socket) => {
     console.log("New client connected", socket.id, "User:", socket.user?.email);
 
-    socket.on("message", async (payload) => {
+    socket.on("message", async (payload,callback) => {
+      console.log("Message received:", payload.content);
+      if (callback) callback({ status: "ok" });
       socket.emit("response_pending", { chat: payload.chat });
       console.log(`Acknowledged message for chat ${payload.chat}. Now processing...`);
       try {
