@@ -6,7 +6,7 @@ import axios from "axios";
 const baseURL = import.meta.env.DEV
   ? '/api'
   // ❗️ Make sure your .env file has VITE_BACKEND_URI for production
-  : import.meta.env.BACKEND_URI;
+  : import.meta.env.VITE_BACKEND_URI;
 
 const api = axios.create({
   baseURL: baseURL,
