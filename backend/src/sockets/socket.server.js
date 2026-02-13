@@ -25,8 +25,10 @@ function initSocketServer(httpServer) {
 
   // Auth middleware
   io.use(async (socket, next) => {
+    console.log("🔒 Verifying Socket Connection for:", socket.id);
     try {
       const cookies = socket.handshake.headers?.cookie || "";
+      console.log("🍪 Cookies received:", cookies ? "Yes" : "No");
       const parsedCookies = cookie.parse(cookies);
       const token =
         parsedCookies.token ||

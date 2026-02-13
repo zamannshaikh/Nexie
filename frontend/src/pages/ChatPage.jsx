@@ -340,6 +340,9 @@ if (!socket.current?.connected) {
     socket.current.connect();
     return; // Don't try to send if disconnected
 }
+socket.on("connect_error", (err) => {
+    console.error("🚨 SOCKET CONNECTION ERROR:", err.message);
+  });
 
     const activeChat = chatsById[activeChatId];
     if (!activeChat) {
