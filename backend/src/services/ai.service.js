@@ -87,6 +87,10 @@ const { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } = require("@langc
 const { TavilySearch } = require("@langchain/tavily");
 const { HumanMessage, AIMessage, SystemMessage } = require("@langchain/core/messages");
 const { createReactAgent } = require("@langchain/langgraph/prebuilt");
+ const  { GoogleGenAI } =require("@google/genai")
+
+ const ai = new GoogleGenAI({});
+
 
 // 1. Initialize the Model (Gemini 2.5 Flash)
 const llm = new ChatGoogleGenerativeAI({
@@ -191,14 +195,27 @@ async function generateResponse(langchainMessages, username) {
 /**
  * Embeddings Generation
  */
-const embeddingsModel = new GoogleGenerativeAIEmbeddings({
-  model: "embedding-001", // ✅ Updated to the correct Gemini Embeddings model
-  apiKey: process.env.GOOGLE_API_KEY,
-});
+// const embeddingsModel = new GoogleGenerativeAIEmbeddings({
+//   model: "embedding-001", // ✅ Updated to the correct Gemini Embeddings model
+//   apiKey: process.env.GOOGLE_API_KEY,
+// });
+
+// async function generateVector(content) {
+//   const vectors = await embeddingsModel.embedQuery(content);
+//   return vectors; // Returns an array of numbers (e.g., [0.1, -0.2, ...])
+// }
+
 
 async function generateVector(content) {
-  const vectors = await embeddingsModel.embedQuery(content);
-  return vectors; // Returns an array of numbers (e.g., [0.1, -0.2, ...])
+    const response = await ai.models.embedContent({
+        model:"gemini-embedding-001",
+        contents: content,
+        config:{
+            outputDimensionality:768
+        }
+    })
+    return response.embeddings[0].values
+    
 }
 
 module.exports = { generateResponse, generateVector };
