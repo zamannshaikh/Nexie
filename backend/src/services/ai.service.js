@@ -192,7 +192,8 @@ async function generateResponse(langchainMessages, username) {
  * Embeddings Generation
  */
 const embeddingsModel = new GoogleGenerativeAIEmbeddings({
-  model: "text-embedding-004", // ✅ Updated to the correct Gemini Embeddings model
+  model: "text-embedding-001", // ✅ Updated to the correct Gemini Embeddings model
+  apiKey: process.env.GOOGLE_API_KEY,
 });
 
 async function generateVector(content) {
