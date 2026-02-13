@@ -246,7 +246,7 @@ const ChatPage = () => {
 
   // Effect to manage the socket connection
   useEffect(() => {
-    socket.current = io(BACKEND_URI, { 
+    socket.current = io("/", { 
       withCredentials: true ,
       transports: ['websocket'],
       path: "/socket.io"
