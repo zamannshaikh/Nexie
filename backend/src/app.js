@@ -34,7 +34,8 @@ app.use('/api/chats',chatRoutes);
 
 
 
-app.get(/^(?!\/api).*/, (req, res) => {
+// Do not serve index.html for /api OR /socket.io requests
+app.get(/^(?!\/(api|socket.io)).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
