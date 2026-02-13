@@ -251,7 +251,12 @@ const ChatPage = () => {
       transports: ['websocket'],
       path: "/socket.io"
     });
- 
+    socket.current.on("connect_error", (err) => {
+        console.error("🚨 SOCKET CONNECTION ERROR:", err.message); // This will now print!
+    });
+    socket.current.on("connect", () => {
+        console.log("✅ SOCKET CONNECTED SUCCESSFULLY:", socket.current.id);
+    });
    
      // NEW LISTENER for the "working" signal
     const handleResponsePending = (data) => {
@@ -259,6 +264,9 @@ const ChatPage = () => {
       if (data.chat === currentActiveChatId) {
         setIsLoading(true);
       }
+      return () => {
+        if (socket.current) socket.current.disconnect();
+    };
     };
 
 
