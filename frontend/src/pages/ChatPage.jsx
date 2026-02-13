@@ -249,6 +249,7 @@ const ChatPage = () => {
     socket.current = io(BACKEND_URI, { 
       withCredentials: true ,
       transports: ['websocket'],
+      path: "/socket.io"
     });
  
    
