@@ -63,6 +63,24 @@ function initSocketServer(httpServer) {
 // Replace the entire 'socket.on("message", ...)' block with this
 
 io.on("connection", (socket) => {
+
+  // Check if this is the web user or the Rust gateway
+    if (socket.isGateway) {
+      console.log("⚡ Gateway connected successfully:", socket.id);
+
+      // Listen for terminal output coming back from Rust
+      socket.on("command_result", (data) => {
+        console.log("✅ Output from Mac:\n", data.output);
+      });
+
+      // Test: Send a command to Rust 3 seconds after it connects
+      setTimeout(() => {
+        console.log("🤖 Nexie is sending a command to your Mac...");
+        socket.emit("execute_command", { command: "mkdir nexie_test_folder" });
+      }, 3000);
+
+      return; // Stop here so the gateway doesn't load the normal chat listeners
+    }
     console.log("New client connected", socket.id, "User:", socket.user?.email);
 
     socket.on("message", async (payload,callback) => {
