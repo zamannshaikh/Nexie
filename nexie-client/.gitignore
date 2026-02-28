@@ -1,0 +1,8 @@
+# Node
+node_modules/
+
+# Rust
+target/
+
+# Env files (good practice)
+.env
