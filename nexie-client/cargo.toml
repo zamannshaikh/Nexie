@@ -1,0 +1,9 @@
+[package]
+name = "nexie-client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rust_socketio = "0.6.0"
+serde_json = "1.0"
+tray-item = "0.10.0"

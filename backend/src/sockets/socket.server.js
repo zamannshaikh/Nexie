@@ -26,6 +26,12 @@ function initSocketServer(httpServer) {
   // Auth middleware
   io.use(async (socket, next) => {
     console.log("🔒 Verifying Socket Connection for:", socket.id);
+    //  THIS BYPASS FOR THE RUST GATEWAY 
+    if (socket.handshake.query?.clientType === "rust_gateway") {
+      console.log("✅ Rust Local Gateway authorized.");
+      socket.isGateway = true; // Tag this socket so we know it's the gateway
+      return next(); 
+    }
     try {
       const cookies = socket.handshake.headers?.cookie || "";
       console.log("🍪 Cookies received:", cookies ? "Yes" : "No");
