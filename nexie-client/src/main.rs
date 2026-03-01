@@ -42,7 +42,7 @@ fn main() {
     };
 
     // 2. Connect to your Socket.io server
-    let _socket = ClientBuilder::new("http://localhost:5000?clientType=rust_gateway")
+    let _socket = ClientBuilder::new("http://localhost:5000?clientType=rust_gateway&userId=68e54d3495e91a65856a7aaf")
         .on("execute_command", on_command)
         .connect()
         .expect("Failed to connect to Nexie Socket.io server");

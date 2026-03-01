@@ -9,6 +9,10 @@ const { createMemory, queryMemory } = require("../services/vector.service");
 // Add this line at the top of socket.server.js
 const { HumanMessage, AIMessage } = require("@langchain/core/messages");
 
+
+// This Map will store: { "userId": gatewaySocket }
+const activeGateways = new Map();
+
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {
     cors: {
@@ -28,8 +32,13 @@ function initSocketServer(httpServer) {
     console.log("🔒 Verifying Socket Connection for:", socket.id);
     //  THIS BYPASS FOR THE RUST GATEWAY 
     if (socket.handshake.query?.clientType === "rust_gateway") {
-      console.log("✅ Rust Local Gateway authorized.");
+       const gatewayUserId = socket.handshake.query?.userId;
+       if (!gatewayUserId) {
+        return next(new Error("Gateway connection missing userId"));
+      }
+    console.log(`✅ Rust Local Gateway authorized for user: ${gatewayUserId}`);
       socket.isGateway = true; // Tag this socket so we know it's the gateway
+      socket.gatewayUserId = gatewayUserId; // Store the user ID on the socket
       return next(); 
     }
     try {
@@ -66,7 +75,10 @@ io.on("connection", (socket) => {
 
   // Check if this is the web user or the Rust gateway
     if (socket.isGateway) {
-      console.log("⚡ Gateway connected successfully:", socket.id);
+     console.log("⚡ Gateway connected and registered for user:", socket.gatewayUserId);
+
+     // Add this socket to our registry
+      activeGateways.set(socket.gatewayUserId, socket);
 
       // Listen for terminal output coming back from Rust
       socket.on("command_result", (data) => {
@@ -222,7 +234,10 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
       console.log("Client disconnected", socket.id);
+      console.log("❌ Gateway disconnected for user:", socket.gatewayUserId);
+        activeGateways.delete(socket.gatewayUserId);
     });
+    return;
   });
 
   
