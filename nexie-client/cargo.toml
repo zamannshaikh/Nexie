@@ -9,3 +9,10 @@ serde_json = "1.0"
 tray-item = "0.10.0"
 directories = "5.0"
 tinyfiledialogs = "3.9"
+
+[package.metadata.bundle]
+name = "Nexie Gateway"
+identifier = "com.nexie.gateway"
+version = "1.0.0"
+icon = ["assets/gateway_icon.png"]
+copyright = "Copyright (c) Zaman Shaikh 2026. All rights reserved."
