@@ -1,8 +1,8 @@
-const  generateGatewayToken = require("../controllers/gatewayToken.controller");
+const  {generateGatewayToken} = require("../controllers/gatewayToken.controller");
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/auth.middleware");
+const authMiddleware = require("../middlewares/auth.middleware");
 
-router.post("/generate", authMiddleware, generateGatewayToken);
+router.get("/generate", authMiddleware, generateGatewayToken);
 
 module.exports = router;

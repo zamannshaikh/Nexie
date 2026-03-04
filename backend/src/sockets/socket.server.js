@@ -32,14 +32,24 @@ function initSocketServer(httpServer) {
     console.log("🔒 Verifying Socket Connection for:", socket.id);
     //  THIS BYPASS FOR THE RUST GATEWAY 
     if (socket.handshake.query?.clientType === "rust_gateway") {
-       const gatewayUserId = socket.handshake.query?.userId;
-       if (!gatewayUserId) {
-        return next(new Error("Gateway connection missing userId"));
+     const token = socket.handshake.query?.token;
+      if (!token) {
+        return next(new Error("Gateway connection missing token"));
       }
-    console.log(`✅ Rust Local Gateway authorized for user: ${gatewayUserId}`);
-      socket.isGateway = true; // Tag this socket so we know it's the gateway
-      socket.gatewayUserId = gatewayUserId; // Store the user ID on the socket
-      return next(); 
+    
+
+      try {
+        // Verify the token securely using your secret
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        console.log(`✅ Rust Local Gateway authorized for user: ${decoded.userId}`);
+        socket.isGateway = true; 
+        socket.gatewayUserId = decoded.userId; 
+        return next(); 
+      } catch (err) {
+        console.error("Invalid Gateway Token:", err.message);
+        return next(new Error("Invalid gateway token"));
+      }
     }
     try {
       const cookies = socket.handshake.headers?.cookie || "";
