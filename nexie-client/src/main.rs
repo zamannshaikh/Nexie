@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 use rust_socketio::{ClientBuilder, Payload, RawClient};
 use serde_json::json;
 use std::process::Command;
@@ -45,7 +35,6 @@ fn main() {
         };
 
         let clean_input = input.trim();
-      
 
         if clean_input.is_empty() {
             println!("🛑 No token provided. Exiting.");
@@ -61,7 +50,7 @@ fn main() {
     };
 
     let clean_token = token.trim();
-      println!("🔑 Current Token: {}", clean_token);
+    println!("🔑 Current Token: {}", clean_token);
 
     // 5. Connect to Socket.io using the loaded token
     let url = format!("http://localhost:5000?clientType=rust_gateway&token={}", clean_token);
@@ -93,8 +82,17 @@ fn main() {
         }
     };
 
+    // NEW: Define the shutdown behavior
+    let on_shutdown = |_payload: Payload, _socket: RawClient| {
+        println!("🛑 Remote shutdown signal received from Nexie dashboard.");
+        println!("Shutting down the background process instantly...");
+        std::process::exit(0);
+    };
+
+    // Attach BOTH listeners to your Socket connection
     let _socket = ClientBuilder::new(url)
         .on("execute_command", on_command)
+        .on("shutdown_gateway", on_shutdown) 
         .connect()
         .expect("Failed to connect to Nexie Socket.io server");
 
@@ -106,6 +104,20 @@ fn main() {
 
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
     
+    // Add "Reset Token" button
+    let token_path_for_reset = token_file_path.clone();
+    let tx_reset = tx.clone();
+
+    tray.add_menu_item("Reset Token", move || {
+        println!("🗑️ Deleting saved token...");
+        if token_path_for_reset.exists() {
+            let _ = fs::remove_file(&token_path_for_reset);
+        }
+        println!("🛑 Token cleared. Shutting down. Please restart the app.");
+        tx_reset.send(()).unwrap();
+    }).unwrap();
+
+    // Add "Quit" button
     tray.add_menu_item("Quit Nexie", move || {
         println!("🛑 Shutting down Nexie Gateway...");
         tx.send(()).unwrap();

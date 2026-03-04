@@ -18,6 +18,7 @@ import { asyncLogoutUser } from "../store/services/userService";
 import { io } from "socket.io-client";
 // You need to import your store here to prevent stale closures in the socket listener
 import { store } from "../store/store";
+import DisconnectMachineButton from "../components/DisconnectMachineButton";
 
 
 // --- ICONS and CODEBLOCK (No Changes) ---
@@ -466,6 +467,7 @@ const ChatPage = () => {
             >
               <LogoutIcon />
             </button>
+            <DisconnectMachineButton /> {/* NEW BUTTON ADDED TO HEADER */}
           </header>
           <div className="chat-log-wrapper">
             <div className="chat-log" ref={chatLogRef}>

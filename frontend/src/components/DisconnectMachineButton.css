@@ -1,0 +1,32 @@
+/* DisconnectButton.css */
+.gateway-disconnect-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+ 
+  padding: 0.5rem;
+  background-color: transparent; 
+  color: #888888; 
+  border: 1px solid #333333;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.gateway-disconnect-btn:hover:not(:disabled) {
+  background-color: rgba(220, 38, 38, 0.08); 
+  color: #ef4444; 
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.gateway-disconnect-btn:active:not(:disabled) {
+  background-color: rgba(220, 38, 38, 0.15);
+}
+
+.gateway-disconnect-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

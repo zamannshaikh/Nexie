@@ -8,13 +8,13 @@ const messageModel = require("../models/message.model");
 const { createMemory, queryMemory } = require("../services/vector.service");
 // Add this line at the top of socket.server.js
 const { HumanMessage, AIMessage } = require("@langchain/core/messages");
-
+let io;
 
 // This Map will store: { "userId": gatewaySocket }
 const activeGateways = new Map();
 
 function initSocketServer(httpServer) {
-  const io = new Server(httpServer, {
+   io = new Server(httpServer, {
     cors: {
       origin: [
       "https://nexie.in", 
@@ -26,6 +26,7 @@ function initSocketServer(httpServer) {
       credentials: true
     }
   });
+ 
 
   // Auth middleware
   io.use(async (socket, next) => {
@@ -253,4 +254,12 @@ io.on("connection", (socket) => {
   return io;
 }
 
-module.exports = initSocketServer;
+
+const getIo = () => {
+  if (!io) {
+    throw new Error("Socket.io has not been initialized yet!");
+  }
+  return io;
+};
+
+module.exports = { initSocketServer, getIo };
