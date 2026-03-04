@@ -9,6 +9,7 @@ const path = require('path');
 // import routes
 const authRoutes=require("./routes/auth.routes");
 const chatRoutes=require("./routes/chat.route");
+const gatewayTokenRoutes = require("./routes/gatewayToken.routes");
 
 
 // middlewares
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
 // using routes
 app.use('/api/auth',authRoutes);
 app.use('/api/chats',chatRoutes);
+app.use('/api/gateway/token', gatewayTokenRoutes);
 
 
 

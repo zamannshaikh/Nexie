@@ -85,11 +85,7 @@ io.on("connection", (socket) => {
         console.log("✅ Output from Mac:\n", data.output);
       });
 
-      // Test: Send a command to Rust 3 seconds after it connects
-      setTimeout(() => {
-        console.log("🤖 Nexie is sending a command to your Mac...");
-        socket.emit("execute_command", { command: "mkdir nexie_test_folder" });
-      }, 3000);
+      
 
       return; // Stop here so the gateway doesn't load the normal chat listeners
     }
@@ -190,8 +186,9 @@ io.on("connection", (socket) => {
 
         // 8) Log for debugging and call the model
         console.log("Final history (sent to generateResponse):");
+        const userGatewaySocket = activeGateways.get(socket.user._id.toString());
         console.log("Sending to LangGraph:", langchainHistory.length, "messages");
-     const response = await generateResponse(langchainHistory, socket.user.name);
+     const response = await generateResponse(langchainHistory, socket.user.name,userGatewaySocket);
 
         // 9) Save model response and its vector in parallel
         const [responseMessage, responseVector] = await Promise.all([

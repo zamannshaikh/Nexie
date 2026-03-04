@@ -12,6 +12,11 @@ export default defineConfig({
         // 2. We REMOVED the 'rewrite' line here.
         //    This is because your backend URL already includes /api.
       },
+      // Add the Socket.io proxy here
+      '/socket.io': {
+        target: 'ws://localhost:5000', // Points to your backend port
+        ws: true, // Crucial: Enables WebSocket proxying
+      },
     },
   },
 })
