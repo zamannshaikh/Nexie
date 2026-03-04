@@ -16,7 +16,7 @@ const gatewayTokenRoutes = require("./routes/gatewayToken.routes");
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin:["https://nexie-1inf.onrender.com","https://nexie.in","https://www.nexie.in"],
+    origin:["https://nexie-1inf.onrender.com","https://nexie.in","https://www.nexie.in","http://localhost:5173"],
     credentials:true
 }))
 app.use(express.static(path.join(__dirname, '..', 'public')));

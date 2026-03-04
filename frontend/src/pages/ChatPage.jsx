@@ -12,12 +12,13 @@ import {
   asyncUpdateChatTitle,
 } from "../store/services/chatService";
 import { setActiveChat } from "../store/slices/chatSlice";
-import { messageAdd } from "../store/slices/messageSlice"; 
+import { messageAdd } from "../store/slices/messageSlice";
 import { asyncFetchMessages } from "../store/services/messageService";
 import { asyncLogoutUser } from "../store/services/userService";
 import { io } from "socket.io-client";
 // You need to import your store here to prevent stale closures in the socket listener
 import { store } from "../store/store";
+
 
 // --- ICONS and CODEBLOCK (No Changes) ---
 const NexieIcon = ({ size = 24 }) => (
@@ -171,6 +172,10 @@ const CodeBlock = ({ code, language }) => {
       setTimeout(() => setCopied(false), 2500);
     });
   };
+
+   
+      
+    
   return (
     <div className="code-block-wrapper">
       <div className="code-block-header">
@@ -207,35 +212,27 @@ const ChatPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const socket = useRef(null);
   const chatLogRef = useRef(null);
   const textareaRef = useRef(null);
 
-
-  
-
-  
-  
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const handleGatewayLogic = () => {
+    navigate("/gateway-setup");
+  };
 
   const { user } = useSelector((state) => state.userReducer);
   const { chatsById, activeChatId } = useSelector((state) => state.chatReducer);
   const { messagesByChatId } = useSelector((state) => state.messageReducer);
 
   const chatHistory = Object.values(chatsById).sort(
-    (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+    (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
   );
   const messages = messagesByChatId[activeChatId] || [];
 
   const prevChatCount = useRef(chatHistory.length);
-  
-
-
-
-
 
   // Effect to fetch initial user chats
   useEffect(() => {
@@ -246,19 +243,19 @@ const ChatPage = () => {
 
   // Effect to manage the socket connection
   useEffect(() => {
-    socket.current = io("/", { 
-      withCredentials: true ,
-      transports: ['websocket'],
-      path: "/socket.io"
+    socket.current = io("/", {
+      withCredentials: true,
+      transports: ["websocket"],
+      path: "/socket.io",
     });
     socket.current.on("connect_error", (err) => {
-        console.error("🚨 SOCKET CONNECTION ERROR:", err.message); // This will now print!
+      console.error("🚨 SOCKET CONNECTION ERROR:", err.message); // This will now print!
     });
     socket.current.on("connect", () => {
-        console.log("✅ SOCKET CONNECTED SUCCESSFULLY:", socket.current.id);
+      console.log("✅ SOCKET CONNECTED SUCCESSFULLY:", socket.current.id);
     });
-   
-     // NEW LISTENER for the "working" signal
+
+    // NEW LISTENER for the "working" signal
     const handleResponsePending = (data) => {
       const currentActiveChatId = store.getState().chatReducer.activeChatId;
       if (data.chat === currentActiveChatId) {
@@ -266,9 +263,8 @@ const ChatPage = () => {
       }
       return () => {
         if (socket.current) socket.current.disconnect();
+      };
     };
-    };
-
 
     // UPDATED LISTENER for the final response
     const handleResponse = (data) => {
@@ -281,14 +277,16 @@ const ChatPage = () => {
           content: data.content,
           role: "model",
           sender: "bot", // For UI consistency
-          text: data.content // For UI consistency
+          text: data.content, // For UI consistency
         };
-        dispatch(messageAdd({ chatId: currentActiveChatId, message: aiMessage }));
+        dispatch(
+          messageAdd({ chatId: currentActiveChatId, message: aiMessage }),
+        );
         setIsLoading(false); // Turn off loading indicator
       }
     };
 
-       // Attach the new and updated listeners
+    // Attach the new and updated listeners
     socket.current.on("response_pending", handleResponsePending);
     socket.current.on("response", handleResponse);
     return () => {
@@ -311,26 +309,26 @@ const ChatPage = () => {
     }
   }, [userInput]);
 
- const handleNewChat = async () => {
-  try {
-    // 1. Create the chat and capture the returned data immediately
-    const newChatAction = await dispatch(asyncCreateNewChat("New Chat"));
-    const newChat = newChatAction.payload; // This is the actual chat object from backend
+  const handleNewChat = async () => {
+    try {
+      // 1. Create the chat and capture the returned data immediately
+      const newChatAction = await dispatch(asyncCreateNewChat("New Chat"));
+      const newChat = newChatAction.payload; // This is the actual chat object from backend
 
-    // 2. Update the list in the background (so the sidebar fills up)
-    dispatch(asyncFetchUserChats());
+      // 2. Update the list in the background (so the sidebar fills up)
+      dispatch(asyncFetchUserChats());
 
-    // 3. CRITICAL STEP: Set the active chat manually right now.
-    // We don't wait for the fetch; we just force the UI to switch.
-    if (newChat && newChat._id) {
-      dispatch(setActiveChat(newChat._id));
+      // 3. CRITICAL STEP: Set the active chat manually right now.
+      // We don't wait for the fetch; we just force the UI to switch.
+      if (newChat && newChat._id) {
+        dispatch(setActiveChat(newChat._id));
+      }
+
+      setSidebarOpen(false);
+    } catch (error) {
+      console.error("Failed to create chat", error);
     }
-    
-    setSidebarOpen(false);
-  } catch (error) {
-    console.error("Failed to create chat", error);
-  }
-};
+  };
   const handleLogout = () => {
     dispatch(asyncLogoutUser());
     navigate("/");
@@ -341,13 +339,13 @@ const ChatPage = () => {
     if (!userInput.trim() || isLoading) return;
 
     console.log("Socket ID:", socket.current?.id);
-console.log("Is Connected?:", socket.current?.connected); // <--- THIS IS CRITICAL
+    console.log("Is Connected?:", socket.current?.connected); // <--- THIS IS CRITICAL
 
-if (!socket.current?.connected) {
-    console.error("Socket is NOT connected. Attempting to reconnect...");
-    socket.current.connect();
-    return; // Don't try to send if disconnected
-}
+    if (!socket.current?.connected) {
+      console.error("Socket is NOT connected. Attempting to reconnect...");
+      socket.current.connect();
+      return; // Don't try to send if disconnected
+    }
 
     const activeChat = chatsById[activeChatId];
     if (!activeChat) {
@@ -371,9 +369,13 @@ if (!socket.current?.connected) {
 
     // THIS IS THE FIX: Dispatch the synchronous action for an instant UI update.
     dispatch(messageAdd({ chatId: activeChatId, message: userMessage }));
-    socket.current.emit("message", { chat: activeChatId, content: userInput },(response)=>{
-      console.log("Server acknowledged message:", response);
-    });
+    socket.current.emit(
+      "message",
+      { chat: activeChatId, content: userInput },
+      (response) => {
+        console.log("Server acknowledged message:", response);
+      },
+    );
 
     setUserInput("");
     setIsLoading(true);
@@ -419,6 +421,25 @@ if (!socket.current?.connected) {
                 </div>
                 <span>{user.name}</span>
               </div>
+
+              <button className="gateway-link-btn"
+               onClick={handleGatewayLogic} >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                Link your Machine
+              </button>
             </div>
           </div>
         </aside>
@@ -473,7 +494,7 @@ if (!socket.current?.connected) {
                           code(props) {
                             const { children, className } = props;
                             const match = /language-(\w+)/.exec(
-                              className || ""
+                              className || "",
                             );
                             return match ? (
                               <CodeBlock
@@ -536,5 +557,3 @@ if (!socket.current?.connected) {
   );
 };
 export default ChatPage;
-
-

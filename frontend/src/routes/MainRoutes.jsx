@@ -4,6 +4,7 @@ import LandingPage from '../pages/LandingPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import ChatPage from '../pages/ChatPage';
+import GatewaySetup from '../pages/GatewaySetup';
 
 const MainRoutes = () => {
   return (
@@ -13,6 +14,7 @@ const MainRoutes = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/chat" element={<ChatPage />} />
+        <Route path="/gateway-setup" element={<GatewaySetup />} />
         
       </Routes>
     </>

@@ -1,0 +1,120 @@
+.gateway-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: #e0e0e0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.gateway-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.gateway-header h1 {
+  font-size: 2.5rem;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.gateway-header p {
+  color: #a0a0a0;
+  font-size: 1.1rem;
+}
+
+.gateway-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.step-card {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+
+.step-card:hover {
+  border-color: #ef4444;
+}
+
+.step-number {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  background-color: #ef4444;
+  color: #ffffff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+}
+
+.step-card h3 {
+  color: #ffffff;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.step-card p {
+  color: #999;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.download-btn {
+  background-color: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.token-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #0f0f0f;
+  border: 1px solid #333;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+}
+
+.token-box code {
+  color: #ef4444;
+  font-family: monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+  margin-right: 1rem;
+}
+
+.copy-btn {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s ease;
+}
+
+.copy-btn:hover {
+  background-color: #444;
+}
