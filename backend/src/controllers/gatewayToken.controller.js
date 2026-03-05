@@ -80,4 +80,33 @@ const shutdownGateway = async (req, res) => {
 };
 
 
-module.exports = { generateGatewayToken, shutdownGateway };
+
+
+const getGatewayStatus = async (req, res) => {
+  try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const userId = req.user._id.toString();
+    const io = getIo(); 
+    let isActive = false;
+
+    // Search for the user's active socket
+    for (let [id, socket] of io.sockets.sockets) {
+      if (socket.isGateway && socket.gatewayUserId === userId) {
+        isActive = true;
+        break;
+      }
+    }
+
+    return res.status(200).json({ active: isActive });
+
+  } catch (error) {
+    console.error("Error checking gateway status:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+module.exports = { generateGatewayToken, shutdownGateway ,getGatewayStatus};

@@ -1,4 +1,4 @@
-/* DisconnectButton.css */
+/* DisconnectButton.css
 .gateway-disconnect-btn {
   display: flex;
   align-items: center;
@@ -29,4 +29,81 @@
 .gateway-disconnect-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+} */
+
+
+
+
+
+.gateway-disconnect-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.2rem;
+ 
+  padding: 0.3rem;
+  background-color: transparent; 
+  color: #888888; 
+  border: 1px solid #333333;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+
+.gateway-disconnect-btn:hover:not(:disabled) {
+  background-color: rgba(220, 38, 38, 0.08); 
+  color: #ef4444; 
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.gateway-status-container {
+  /* display: flex; */
+  align-items: center;
+ 
+  /* Add this to push it to the far right side of your header */
+ 
+  /* We removed width: 100% and margin-bottom */
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;  /* Matches your button */
+  font-weight: 500;   /* Matches your button */
+  color: #888888;     /* Matches your button */
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+}
+
+/* Active State - Subtle Green */
+.status-dot.active {
+  background-color: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+/* Inactive State - Matches your button's red hover (#ef4444) */
+.status-dot.inactive {
+  background-color: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+/* Subtle pulse for the active dot */
+@keyframes pulse-minimal {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  70% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.status-dot.active {
+  animation: pulse-minimal 2s infinite;
 }
