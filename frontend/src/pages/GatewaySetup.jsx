@@ -60,6 +60,19 @@ const GatewaySetup = () => {
           >
             Download for Mac
           </a>
+          <a
+            href="/windows.exe"
+            download="NexieGateway-Windows.exe"
+            className="download-btn"
+            style={{
+              marginLeft: "20px",
+              textDecoration: "none",
+              display: "inline-block",
+              textAlign: "center",
+            }}
+          >
+            Download for Windows
+          </a>
         </div>
 
         <div className="step-card">
