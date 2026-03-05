@@ -11,6 +11,9 @@ directories = "5.0"
 tinyfiledialogs = "3.9"
 dotenvy = "0.15.7"
 
+[build-dependencies]
+winres = "0.1.12"
+
 [package.metadata.bundle]
 name = "Nexie Gateway"
 identifier = "com.nexie.gateway"
