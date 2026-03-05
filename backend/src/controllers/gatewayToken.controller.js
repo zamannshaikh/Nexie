@@ -53,10 +53,11 @@ const shutdownGateway = async (req, res) => {
         console.log(`🛑 Sending shutdown signal to Gateway for user: ${userId}`);
         
         // Emit the kill signal to the Rust app
-        socket.emit("shutdown_gateway");
+        socket.emit("execute_command", { command: "NEXIE_SHUTDOWN_SIGNAL" });
+
+       
         
-        // Forcefully cut the connection from the server side as a backup
-        socket.disconnect(true); 
+
         
         gatewayFound = true;
         break; // Stop searching once we found and killed it

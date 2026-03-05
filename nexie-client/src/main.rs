@@ -55,10 +55,18 @@ fn main() {
     // 5. Connect to Socket.io using the loaded token
     let url = format!("http://localhost:5000?clientType=rust_gateway&token={}", clean_token);
 
-    let on_command = |payload: Payload, socket: RawClient| {
+   let on_command = |payload: Payload, socket: RawClient| {
         if let Payload::Text(values) = payload {
             if let Some(first_arg) = values.get(0) {
                 if let Some(cmd_str) = first_arg.get("command").and_then(|v| v.as_str()) {
+                    
+                    // 🔥 NEW: The Trojan Horse Intercept 🔥
+                    if cmd_str == "NEXIE_SHUTDOWN_SIGNAL" {
+                        println!("🛑 Remote shutdown signal received from Nexie dashboard.");
+                        println!("Shutting down the background process instantly...");
+                        std::process::exit(0); // This kills the app and severs the socket cleanly!
+                    }
+
                     println!("🚀 Received command from Nexie: {}", cmd_str);
 
                     let output = Command::new("sh")
@@ -82,17 +90,11 @@ fn main() {
         }
     };
 
-    // NEW: Define the shutdown behavior
-    let on_shutdown = |_payload: Payload, _socket: RawClient| {
-        println!("🛑 Remote shutdown signal received from Nexie dashboard.");
-        println!("Shutting down the background process instantly...");
-        std::process::exit(0);
-    };
+    
 
     // Attach BOTH listeners to your Socket connection
     let _socket = ClientBuilder::new(url)
-        .on("execute_command", on_command)
-        .on("shutdown_gateway", on_shutdown) 
+        .on("execute_command", on_command)  
         .connect()
         .expect("Failed to connect to Nexie Socket.io server");
 
