@@ -17,7 +17,7 @@ export default function DisconnectMachineButton() {
         credentials: 'include'
       });
       console.log("Gateway status response:", response);
-      if (response.statusText==="OK") {
+      if (response.status === 200) {
         const data = await response.data;
         setIsActive(data.active);
         console.log("Gateway active status:", data.active);

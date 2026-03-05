@@ -9,6 +9,7 @@ serde_json = "1.0"
 tray-item = "0.10.0"
 directories = "5.0"
 tinyfiledialogs = "3.9"
+dotenvy = "0.15.7"
 
 [package.metadata.bundle]
 name = "Nexie Gateway"
