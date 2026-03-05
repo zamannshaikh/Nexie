@@ -13,7 +13,7 @@ export default function DisconnectMachineButton() {
   // 1. Fetch the active status when the component loads
   const checkStatus = async () => {
     try {
-      const response = await api.get(`${BACKEND_URI}/api/gateway/token/status`, {
+      const response = await api.get(`${BACKEND_URI}/gateway/token/status`, {
         credentials: 'include'
       });
       console.log("Gateway status response:", response);
@@ -40,7 +40,7 @@ export default function DisconnectMachineButton() {
   const handleDisconnect = async () => {
     setIsDisconnecting(true);
     try {
-      const response = await api.post(`${BACKEND_URI}/api/gateway/token/shutdown`);
+      const response = await api.post(`${BACKEND_URI}/gateway/token/shutdown`);
       console.log("Shutdown response:", response);
       if (response.ok) {
         alert("Machine disconnected and shut down successfully!");

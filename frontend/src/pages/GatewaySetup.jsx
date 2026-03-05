@@ -13,7 +13,7 @@ const GatewaySetup = () => {
     const fetchToken = async () => {
       try {
         const response = await api.get(
-          `${BACKEND_URI}/api/gateway/token/generate`,
+          `${BACKEND_URI}/gateway/token/generate`,
           { withCredentials: true },
         );
         console.log("Token response:", response);
