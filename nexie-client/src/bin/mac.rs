@@ -1,3 +1,4 @@
+use std::env::consts::OS;
 use rust_socketio::{ClientBuilder, Payload, RawClient};
 use serde_json::json;
 use std::process::Command;
@@ -53,7 +54,7 @@ fn main() {
     println!("🔑 Current Token: {}", clean_token);
 
     // 5. Connect to Socket.io using the loaded token
-    let url = format!("https://nexie.in?clientType=rust_gateway&token={}", clean_token);
+    let url = format!("https://nexie.in?clientType=rust_gateway&token={}&os={}", clean_token,OS);
 
    let on_command = |payload: Payload, socket: RawClient| {
         if let Payload::Text(values) = payload {

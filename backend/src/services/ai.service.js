@@ -91,78 +91,7 @@ TOOL USAGE RULES:
 
 You have the power to loop and use tools multiple times in the background before giving your final conversational response to the user. Use this power to be genuinely helpful.`;
 
-// async function generateResponse(langchainMessages, username, gatewaySocket) {
-//   console.log(`Generating response for ${username}...`);
-//   const now = new Date();
-//   const timeString = now.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
-//   let finalSystemInstruction = nexieSystemInstruction;
-//   finalSystemInstruction += `\n\n🕒 CURRENT SYSTEM TIME: ${timeString}`;
-//   finalSystemInstruction += `\n(Use this date to verify if search results are up-to-date)`;
-  
-//   if (username) {
-//     finalSystemInstruction += `\n\nCONTEXT: You are chatting with ${username}. Use their name warmly!`;
-//   }
-
-//   // Check if the user is connected via the Rust app
-//   if (gatewaySocket) {
-//     finalSystemInstruction += `\n\nSTATUS: The user's local computer IS connected. You may use the local execution tool.`;
-//   } else {
-//     finalSystemInstruction += `\n\nSTATUS: The user's local computer is NOT connected. Do not attempt to use the local execution tool.`;
-//   }
-
-//   const messagesWithSystem = [
-//     new SystemMessage(finalSystemInstruction),
-//     ...langchainMessages,
-//   ];
-
-//   // 5. Assemble the tools array dynamically for this specific request
-//   const currentTools = [tavilyTool];
-//   if (gatewaySocket) {
-//     console.log("🔌 Local Gateway detected. Adding local execution tool to Nexie's toolbelt.");
-//     currentTools.push(createLocalExecutionTool(gatewaySocket));
-//   } else {
-//     console.log("⚠️ No Local Gateway detected for this request.");
-//   }
-
-//   // 6. Create the LangGraph Agent for this specific request
-//   const agent = createReactAgent({
-//     llm,
-//     tools: currentTools,
-//   });
-
-//   try {
-//     const response = await agent.invoke({
-//       messages: messagesWithSystem,
-//     });
-
-//     // 👇 DEBUGGING BLOCK 👇
-//     console.log("🔍 AGENT THINKING PROCESS:");
-//     response.messages.forEach((msg) => {
-//       if (msg._getType() === "ai" && msg.tool_calls?.length > 0) {
-//         console.log(`🤖 AI Decided to call tool: ${msg.tool_calls[0].name}`);
-//         console.log(`   Query: ${JSON.stringify(msg.tool_calls[0].args)}`);
-//       }
-//       if (msg._getType() === "tool") {
-//         console.log(`📦 RAW TOOL RESULTS (${msg.name}):`);
-//         try {
-//           console.log(JSON.stringify(JSON.parse(msg.content), null, 2)); 
-//         } catch (e) {
-//           console.log(msg.content);
-//         }
-//       }
-//     });
-//     console.log("-----------------------------");
-//     // 👆 END DEBUGGING BLOCK 👆
-
-//     const lastMessage = response.messages[response.messages.length - 1];
-//     return lastMessage.content;
-    
-//   } catch (error) {
-//     console.error("LangGraph Agent Error:", error);
-//     return "Oops! I tripped over a wire. 🔌 Can you ask me that again?";
-//   }
-// }
 
 
 
@@ -182,12 +111,15 @@ async function generateResponse(langchainMessages, username, gatewaySocket) {
     finalSystemInstruction += `\n\nCONTEXT: You are chatting with ${username}. Use their name warmly!`;
   }
 
+
+
   if (gatewaySocket) {
-    finalSystemInstruction += `\n\nSTATUS: The user's local computer IS connected. You may use the local execution tool.`;
+    const osName = gatewaySocket.clientOS || "unknown";
+    finalSystemInstruction += `\n\nSTATUS: The user's local computer IS connected.`;
+    finalSystemInstruction += `\nOPERATING SYSTEM: ${osName.toUpperCase()}. You MUST write your local execution commands specifically for this OS (e.g., use 'cmd'/'powershell' syntax for Windows, 'bash'/'zsh' syntax for macOS).`;
   } else {
     finalSystemInstruction += `\n\nSTATUS: The user's local computer is NOT connected. Do not attempt to use the local execution tool.`;
   }
-
   const messagesWithSystem = [
     new SystemMessage(finalSystemInstruction),
     ...langchainMessages,
@@ -280,3 +212,83 @@ async function generateVector(content) {
 }
 
 module.exports = { generateResponse, generateVector };
+
+
+
+
+
+
+
+
+// async function generateResponse(langchainMessages, username, gatewaySocket) {
+//   console.log(`Generating response for ${username}...`);
+//   const now = new Date();
+//   const timeString = now.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+
+//   let finalSystemInstruction = nexieSystemInstruction;
+//   finalSystemInstruction += `\n\n🕒 CURRENT SYSTEM TIME: ${timeString}`;
+//   finalSystemInstruction += `\n(Use this date to verify if search results are up-to-date)`;
+  
+//   if (username) {
+//     finalSystemInstruction += `\n\nCONTEXT: You are chatting with ${username}. Use their name warmly!`;
+//   }
+
+//   // Check if the user is connected via the Rust app
+//   if (gatewaySocket) {
+//     finalSystemInstruction += `\n\nSTATUS: The user's local computer IS connected. You may use the local execution tool.`;
+//   } else {
+//     finalSystemInstruction += `\n\nSTATUS: The user's local computer is NOT connected. Do not attempt to use the local execution tool.`;
+//   }
+
+//   const messagesWithSystem = [
+//     new SystemMessage(finalSystemInstruction),
+//     ...langchainMessages,
+//   ];
+
+//   // 5. Assemble the tools array dynamically for this specific request
+//   const currentTools = [tavilyTool];
+//   if (gatewaySocket) {
+//     console.log("🔌 Local Gateway detected. Adding local execution tool to Nexie's toolbelt.");
+//     currentTools.push(createLocalExecutionTool(gatewaySocket));
+//   } else {
+//     console.log("⚠️ No Local Gateway detected for this request.");
+//   }
+
+//   // 6. Create the LangGraph Agent for this specific request
+//   const agent = createReactAgent({
+//     llm,
+//     tools: currentTools,
+//   });
+
+//   try {
+//     const response = await agent.invoke({
+//       messages: messagesWithSystem,
+//     });
+
+//     // 👇 DEBUGGING BLOCK 👇
+//     console.log("🔍 AGENT THINKING PROCESS:");
+//     response.messages.forEach((msg) => {
+//       if (msg._getType() === "ai" && msg.tool_calls?.length > 0) {
+//         console.log(`🤖 AI Decided to call tool: ${msg.tool_calls[0].name}`);
+//         console.log(`   Query: ${JSON.stringify(msg.tool_calls[0].args)}`);
+//       }
+//       if (msg._getType() === "tool") {
+//         console.log(`📦 RAW TOOL RESULTS (${msg.name}):`);
+//         try {
+//           console.log(JSON.stringify(JSON.parse(msg.content), null, 2)); 
+//         } catch (e) {
+//           console.log(msg.content);
+//         }
+//       }
+//     });
+//     console.log("-----------------------------");
+//     // 👆 END DEBUGGING BLOCK 👆
+
+//     const lastMessage = response.messages[response.messages.length - 1];
+//     return lastMessage.content;
+    
+//   } catch (error) {
+//     console.error("LangGraph Agent Error:", error);
+//     return "Oops! I tripped over a wire. 🔌 Can you ask me that again?";
+//   }
+// }

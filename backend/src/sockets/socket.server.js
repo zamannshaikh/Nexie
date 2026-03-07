@@ -40,6 +40,8 @@ function initSocketServer(httpServer) {
     
 
       try {
+        const clientOS = socket.handshake.query.os || "unknown";
+        socket.clientOS = clientOS; 
         // Verify the token securely using your secret
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
