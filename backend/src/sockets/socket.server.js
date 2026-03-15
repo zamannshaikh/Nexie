@@ -203,15 +203,36 @@ io.on("connection", (socket) => {
         console.log("Sending to LangGraph:", langchainHistory.length, "messages");
      const response = await generateResponse(langchainHistory, socket.user.name,userGatewaySocket);
 
+
+
+
+     let response = await generateResponse(langchainHistory, socket.user.name, userGatewaySocket);
+
+        // 🛡️ SAFEGUARD: Ensure 'response' is always a string
+        let safeResponseContent = "";
+        
+        if (typeof response === "string") {
+            safeResponseContent = response;
+        } else if (Array.isArray(response)) {
+            // If it returns an empty array [], make it a readable string
+            safeResponseContent = response.length === 0 ? "I couldn't find any results." : JSON.stringify(response);
+        } else if (response && response.content) {
+            // In case LangChain returns a raw AIMessage object
+            safeResponseContent = response.content;
+        } else {
+            // Fallback for any other weird object
+            safeResponseContent = JSON.stringify(response);
+        }
+
         // 9) Save model response and its vector in parallel
         const [responseMessage, responseVector] = await Promise.all([
           messageModel.create({
             chat: payload.chat,
             user: socket.user._id,
-            content: response,
+            content: safeResponseContent,
             role: "model"
           }),
-          generateVector(response)
+          generateVector(safeResponseContent)
         ]);
 
         // 10) Store model response vector in Pinecone (WITHOUT full text in metadata)
