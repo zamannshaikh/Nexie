@@ -206,7 +206,7 @@ io.on("connection", (socket) => {
 
 
 
-     let response = await generateResponse(langchainHistory, socket.user.name, userGatewaySocket);
+     
 
         // 🛡️ SAFEGUARD: Ensure 'response' is always a string
         let safeResponseContent = "";
