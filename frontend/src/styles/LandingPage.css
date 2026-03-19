@@ -1,288 +1,160 @@
-/* === NEXIE LANDING PAGE - V3 MOBILE-FIRST === */
-
-/* --- 1. Root Variables & Global Styles --- */
+/* Core Reset & Variables */
 :root {
-    --bg-dark: #111827;
-    --text-primary: #f9fafb;
-    --text-secondary: #9ca3af;
-    --accent-1: #2dd4bf; /* Teal */
-    --accent-2: #a78bfa; /* Lavender */
-    --accent-3: #f472b6; /* Pink */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --container-padding: 1.5rem;
-    --container-width: 1100px;
+    --bg: #000000;
+    --surface: #0f0f0f;
+    --text-main: #ffffff;
+    --text-muted: #888888;
+    --border: #222222;
+    --font: 'Inter', -apple-system, sans-serif;
 }
 
 body {
-    background-color: var(--bg-dark);
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
 }
 
-.landing-page {
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
-    font-family: var(--font-family);
-    position: relative;
-    overflow-x: hidden;
-}
-
-/* --- 2. Animated Gradient Background --- */
-.background-shapes {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    overflow: hidden;
-    z-index: 0;
-}
-.background-shapes > div {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.3;
-}
-.shape-1 {
-    width: 400px; height: 400px;
-    background-color: var(--accent-1);
-    top: -50px; left: -100px;
-    animation: move 15s infinite alternate;
-}
-.shape-2 {
-    width: 500px; height: 500px;
-    background-color: var(--accent-2);
-    bottom: -100px; right: -150px;
-    animation: move 20s infinite alternate-reverse;
-}
-.shape-3 {
-    display: none; /* Hidden on mobile for performance */
-}
-@keyframes move {
-    from { transform: translate(0, 0) scale(1); }
-    to { transform: translate(100px, 50px) scale(1.2); }
-}
-
-/* --- 3. Base Layout & Navbar --- */
-.navbar, .hero-section, .features-section, .landing-footer {
-    width: 100%;
-    max-width: var(--container-width);
+.landing-wrapper {
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 var(--container-padding);
-    position: relative;
-    z-index: 2;
+    padding: 0 2rem;
 }
-.navbar {
+
+/* Navigation */
+.minimal-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-}
-.logo { font-size: 1.5rem; font-weight: 700; }
-.nav-buttons { display: flex; gap: 0.75rem; }
-
-/* --- 4. Hero Section --- */
-.hero-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-}
-.hero-visual {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    margin-bottom: 3rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.hero-visual > div {
-    position: absolute;
-    border-radius: 50%;
-    background-color: var(--accent-1);
-    animation: pulse 4s infinite ease-in-out;
-}
-.visual-circle-1 { width: 100%; height: 100%; opacity: 0.1; }
-.visual-circle-2 { width: 66%; height: 66%; opacity: 0.2; animation-delay: 0.5s; }
-.visual-circle-3 { width: 33%; height: 33%; opacity: 0.3; animation-delay: 1s; }
-@keyframes pulse {
-    0%, 100% { transform: scale(0.95); }
-    50% { transform: scale(1.05); }
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
 }
 
-.hero-title {
-    font-size: 2.5rem;
+.nav-logo {
+    font-size: 1.2rem;
     font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 1rem;
+    letter-spacing: 2px;
 }
-.animated-text-wrapper {
-    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    min-height: 45px; /* Prevents layout jump */
-    display: inline-block;
+
+.btn-text {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+    margin-right: 1.5rem;
+    transition: color 0.2s;
 }
-.cursor {
-    display: inline-block;
-    background: var(--accent-1);
-    margin-left: 2px;
-    width: 3px;
-    animation: blink 1s infinite;
+
+.btn-text:hover { color: var(--text-main); }
+
+.btn-primary {
+    background: var(--text-main);
+    color: var(--bg);
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
 }
+
+.btn-primary:hover { opacity: 0.8; }
+.btn-primary.large { padding: 1rem 2rem; font-size: 1.1rem; }
+
+/* Hero Section */
+.minimal-hero {
+    text-align: center;
+    margin: 8rem 0 4rem;
+}
+
+.hero-heading {
+    font-size: 4.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0 0 1.5rem 0;
+}
+
+.hero-subtext {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    line-height: 1.6;
+}
+
+/* Terminal UI */
+.terminal-showcase {
+    max-width: 800px;
+    margin: 0 auto 6rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.terminal-header {
+    background: #1a1a1a;
+    padding: 0.8rem 1rem;
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.close { background: #ff5f56; }
+.minimize { background: #ffbd2e; }
+.expand { background: #27c93f; }
+
+.terminal-body {
+    padding: 2rem;
+    font-family: 'Courier New', monospace;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+.terminal-body p { margin: 0.5rem 0; }
+.prompt { color: #fff; font-weight: bold; }
+.success { color: #27c93f; }
+.typing-cursor { display: inline-block; width: 10px; height: 1.2em; background: #fff; animation: blink 1s step-end infinite; }
+
 @keyframes blink { 50% { opacity: 0; } }
 
-.hero-description {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin: 0 auto 2rem auto;
-    max-width: 500px;
-}
-
-/* --- 5. Features Section --- */
-.features-section {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-}
-.section-title {
-    text-align: center;
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 3rem;
-}
-.features-grid {
+/* Features Grid */
+.feature-columns {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+    margin-bottom: 8rem;
+    border-top: 1px solid var(--border);
+    padding-top: 4rem;
 }
-.feature-card {
-    background: rgba(31, 41, 55, 0.3);
-    border: 1px solid rgba(55, 65, 81, 0.7);
-    padding: 1.5rem;
-    border-radius: 12px;
-    text-align: center;
+
+.col h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
 }
-.feature-icon {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 1.5rem auto;
-    color: var(--accent-1);
-}
-.feature-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-.feature-description {
-    color: var(--text-secondary);
+
+.col p {
+    color: var(--text-muted);
     line-height: 1.6;
-    font-size: 0.95rem;
 }
 
-/* --- 6. Buttons & Footer --- */
-.btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border-radius: 50px; /* Pill shape */
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-.btn-secondary {
-    background-color: transparent;
-    color: var(--text-primary);
-    border-color: var(--text-secondary);
-}
-.btn-secondary:hover {
-    background-color: rgba(249, 250, 251, 0.1);
-    border-color: var(--text-primary);
-}
-.btn-primary {
-    background-color: var(--text-primary);
-    color: var(--bg-dark);
-}
-.btn-primary:hover {
-    background-color: #d1d5db;
-}
-.btn-get-started {
-    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-    color: var(--bg-dark);
-    font-size: 1rem;
-    padding: 1rem 2.5rem;
-    border: none;
-    box-shadow: 0 4px 20px rgba(167, 139, 250, 0.3);
-}
-.btn-get-started:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 25px rgba(167, 139, 250, 0.5);
-    filter: brightness(1.1);
-}
-
-.landing-footer {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
+/* Footer */
+.minimal-footer {
     text-align: center;
-    color: var(--text-secondary);
+    padding: 3rem 0;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
     font-size: 0.9rem;
+    letter-spacing: 1px;
 }
 
-/* --- 7. Tablet & Desktop Styles (Mobile-First) --- */
-@media (min-width: 768px) {
-    :root {
-        --container-padding: 2rem;
-    }
-    .hero-section {
-        flex-direction: row-reverse; /* Visual on left, text on right */
-        text-align: left;
-        align-items: center;
-        padding-top: 5rem;
-        padding-bottom: 5rem;
-        min-height: 90vh;
-    }
-    .hero-content {
-        flex: 1;
-    }
-    .hero-visual {
-        flex: 1;
-        width: auto; height: auto;
-        margin-bottom: 0;
-    }
-    .hero-title {
-        font-size: 3.5rem;
-    }
-    .animated-text-wrapper {
-        min-height: 60px;
-        display: inline-block;
-    }
-    .hero-description {
-        margin-left: 0;
-    }
-    .features-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-    }
-    .feature-card {
-        padding: 2rem;
-    }
-    .section-title {
-        font-size: 2.5rem;
-    }
-    .shape-3 { /* Enable third shape for larger screens */
-        display: block;
-        width: 350px; height: 350px;
-        background-color: var(--accent-3);
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        animation: move 25s infinite alternate;
-    }
-}
-
-@media (min-width: 1024px) {
-    .hero-title {
-        font-size: 4rem;
-    }
-    .animated-text-wrapper {
-        min-height: 70px;
-    }
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-heading { font-size: 3rem; }
+    .feature-columns { grid-template-columns: 1fr; gap: 2rem; }
 }

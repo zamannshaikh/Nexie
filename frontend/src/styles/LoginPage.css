@@ -1,37 +1,60 @@
-/* === NEXIE LOGIN UI - V3 MOBILE-FIRST REBUILD === */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
 
-/* --- 1. Root Variables & Global Styles --- */
+/* === NEXIE LOGIN UI - OBSIDIAN INTELLIGENCE THEME === */
+
 :root {
-    --bg-dark: #111827;
-    --bg-darker: #0c0a09;
-    --bg-element: #27272a;
-    --border-color: #3f3f46;
-    --text-primary: #f2f2f2;
-    --text-secondary: #a8a29e;
-    --accent-1: #2dd4bf;
-    --accent-2: #a78bfa;
-    --error-color: #ef4444;
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --void: #080a0f;
+    --surface: #0d1117;
+    --surface-2: #111827;
+    --surface-3: #1a2235;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-bright: rgba(255, 255, 255, 0.12);
+    --jade: #00e5a0;
+    --jade-dim: rgba(0, 229, 160, 0.12);
+    --jade-glow: rgba(0, 229, 160, 0.35);
+    --amber: #f59e0b;
+    --sky: #38bdf8;
+    --text-1: #f8fafc;
+    --text-2: #94a3b8;
+    --text-3: #475569;
+    --error-color: #f87171;
+    --font-display: 'Bricolage Grotesque', sans-serif;
+    --font-body: 'Instrument Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
 }
 
+/* --- 1. Wrapper --- */
 .login-page-wrapper {
     display: flex;
     min-height: 100vh;
     width: 100%;
-    background-color: var(--bg-dark);
-    font-family: var(--font-family);
-    color: var(--text-primary);
+    background-color: var(--void);
+    font-family: var(--font-body);
+    color: var(--text-1);
+    position: relative;
 }
 
-/* --- 2. Left Branding Panel (Hidden by default, shown on desktop) --- */
+/* Noise overlay matching landing page */
+.login-page-wrapper::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+}
+
+/* --- 2. Left Branding Panel --- */
 .login-panel-left {
     display: none;
-    background-color: var(--bg-darker);
+    background-color: var(--surface);
     position: relative;
     overflow: hidden;
+    border-right: 1px solid var(--border);
 }
 
-/* --- 3. Right Form Panel (Takes full width on mobile) --- */
+/* --- 3. Right Form Panel --- */
 .login-panel-right {
     flex: 1;
     display: flex;
@@ -39,6 +62,8 @@
     align-items: center;
     padding: 2rem 1.5rem;
     width: 100%;
+    position: relative;
+    z-index: 1;
 }
 
 .login-form-container {
@@ -46,7 +71,7 @@
     max-width: 400px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* This centers items horizontally */
+    align-items: center;
 }
 
 .form-header {
@@ -55,36 +80,43 @@
     width: 100%;
 }
 .form-header h2 {
+    font-family: var(--font-display);
     font-size: 1.75rem;
-    font-weight: 700;
+    font-weight: 800;
+    font-optical-sizing: auto;
+    letter-spacing: -0.025em;
     margin-bottom: 0.5rem;
+    color: var(--text-1);
 }
 .form-header p {
-    color: var(--text-secondary);
+    color: var(--text-2);
+    font-size: 0.9rem;
+    font-weight: 300;
 }
 
 /* --- 4. Social Login & Divider --- */
 .social-login-provider {
     margin-bottom: 1.5rem;
     display: flex;
-    justify-content: center; /* Centers the Google button */
+    justify-content: center;
     width: 100%;
-    /* No need for max-width here, the button's width prop handles it */
 }
 
 .divider {
     display: flex;
     align-items: center;
     text-align: center;
-    color: var(--text-secondary);
-    font-size: 0.8rem;
+    color: var(--text-3);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
     margin-bottom: 1.5rem;
     width: 100%;
 }
 .divider::before, .divider::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-bright);
 }
 .divider span {
     padding: 0 1rem;
@@ -104,10 +136,13 @@
 }
 
 .input-group label, .label-wrapper {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
-    color: var(--text-secondary);
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .label-wrapper {
@@ -117,19 +152,23 @@
 }
 
 .input-group input {
-    background-color: var(--bg-element);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+    background-color: var(--surface-2);
+    border: 1px solid var(--border-bright);
+    color: var(--text-1);
     padding: 0.8rem 1rem;
     border-radius: 8px;
-    font-size: 1rem;
-    font-family: inherit;
+    font-size: 0.95rem;
+    font-family: var(--font-body);
     transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-group input::placeholder {
+    color: var(--text-3);
 }
 .input-group input:focus {
     outline: none;
-    border-color: var(--accent-2);
-    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+    border-color: var(--jade);
+    box-shadow: 0 0 0 3px var(--jade-dim);
+    background-color: var(--surface-3);
 }
 
 .password-input-wrapper {
@@ -139,7 +178,7 @@
 }
 .password-input-wrapper input {
     width: 100%;
-    padding-right: 3rem; 
+    padding-right: 3rem;
 }
 .password-toggle-btn {
     position: absolute;
@@ -149,62 +188,76 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: var(--text-3);
     padding: 0.25rem;
+    transition: color 0.2s;
 }
 .password-toggle-btn:hover {
-    color: var(--text-primary);
+    color: var(--jade);
 }
 
 /* --- 6. Links, Buttons & Errors --- */
 .forgot-password-link {
-    font-size: 0.85rem;
-    color: var(--accent-1);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--jade);
     text-decoration: none;
+    letter-spacing: 0.04em;
+    opacity: 0.8;
+    transition: opacity 0.2s;
 }
 .forgot-password-link:hover {
+    opacity: 1;
     text-decoration: underline;
 }
 
 .btn-login-submit {
-    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-    color: var(--bg-darker);
-    font-size: 1rem;
-    font-weight: 600;
+    background: var(--jade);
+    color: var(--void);
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    font-weight: 700;
     padding: 0.9rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: filter 0.2s, transform 0.2s;
+    transition: box-shadow 0.2s, transform 0.2s, filter 0.2s;
     margin-top: 0.5rem;
+    box-shadow: 0 4px 20px var(--jade-glow);
+    letter-spacing: -0.01em;
 }
 .btn-login-submit:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.08);
     transform: translateY(-2px);
+    box-shadow: 0 8px 30px var(--jade-glow);
 }
 
 .signup-link {
     text-align: center;
     margin-top: 2rem;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+    color: var(--text-2);
+    font-size: 0.875rem;
 }
 .signup-link a {
-    color: var(--accent-1);
+    color: var(--jade);
     font-weight: 500;
     text-decoration: none;
+    transition: opacity 0.2s;
 }
 .signup-link a:hover {
+    opacity: 0.8;
     text-decoration: underline;
 }
 
 .error-message {
     color: var(--error-color);
-    font-size: 0.8rem;
-    margin-top: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    margin-top: 0.35rem;
+    letter-spacing: 0.02em;
 }
 
-/* --- 7. Desktop Styles (using a media query) --- */
+/* --- 7. Desktop Styles --- */
 @media (min-width: 768px) {
     .login-panel-left {
         display: flex;
@@ -219,50 +272,64 @@
     .form-header h2 {
         font-size: 2rem;
     }
-    .login-panel-left::before, .login-panel-left::after {
+
+    /* Ambient orb — matches landing page orb-1 */
+    .login-panel-left::after {
         content: '';
         position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
+        width: 500px; height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0, 229, 160, 0.08), transparent 70%);
+        filter: blur(100px);
+        top: -100px; right: -100px;
+        pointer-events: none;
         z-index: 0;
+        animation: orb-drift 18s ease-in-out infinite alternate;
     }
-    .login-panel-left::before {
-        background-image:
-            linear-gradient(45deg, rgba(45,212,191,0.05) 25%, transparent 25%),
-            linear-gradient(-45deg, rgba(167,139,250,0.05) 25%, transparent 25%),
-            linear-gradient(45deg, transparent 75%, rgba(45,212,191,0.05) 75%),
-            linear-gradient(-45deg, transparent 75%, rgba(167,139,250,0.05) 75%);
-        background-size: 40px 40px;
-        opacity: 0.1;
+    @keyframes orb-drift {
+        from { transform: translate(0, 0) scale(1); }
+        to { transform: translate(60px, 80px) scale(1.15); }
     }
-    .login-panel-left::after {
-        background: radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent 50%),
-                    radial-gradient(circle at bottom right, rgba(167,139,250,0.15), transparent 50%);
-        background-size: 200% 200%;
-        animation: subtle-gradient-shift 15s ease infinite alternate;
-        opacity: 0.7;
-    }
-    @keyframes subtle-gradient-shift {
-        0% { background-position: 0% 0%; }
-        100% { background-position: 100% 100%; }
-    }
+
     .brand-content {
         text-align: center;
         position: relative;
         z-index: 2;
     }
     .brand-logo {
+        font-family: var(--font-display);
         font-size: 3.5rem;
         font-weight: 800;
+        font-optical-sizing: auto;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.75rem;
+        color: var(--text-1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+    }
+    /* Jade dot after logo — mirrors the nav logo dot on landing */
+    .brand-logo::after {
+        content: '';
+        display: inline-block;
+        width: 10px; height: 10px;
+        background: var(--jade);
+        border-radius: 50%;
+        box-shadow: 0 0 16px var(--jade-glow);
+        animation: dot-pulse 2s infinite;
         margin-bottom: 0.5rem;
-        background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    @keyframes dot-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.75); }
     }
     .brand-tagline {
-        font-size: 1.2rem;
-        color: var(--text-secondary);
-        font-weight: 400;
-        text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        font-size: 1rem;
+        color: var(--text-2);
+        font-weight: 300;
+        letter-spacing: 0.01em;
+        max-width: 300px;
+        line-height: 1.6;
     }
 }
