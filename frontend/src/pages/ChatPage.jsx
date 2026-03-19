@@ -331,16 +331,8 @@ const ChatPage = () => {
   //   }
   // };
 
-
-  const handleNewChat = async () => {
-  // Bug Fix #2: Prevent duplicate new chats.
-  // If an empty "New Chat" already exists, just switch to it.
-  const existingNewChat = chatHistory.find(
-    (chat) =>
-      chat.title === "New Chat" &&
-      (!messagesByChatId[chat._id] || messagesByChatId[chat._id].length === 0)
-  );
-
+const handleNewChat = async () => {
+  const existingNewChat = chatHistory.find(chat => chat.title === "New Chat");
   if (existingNewChat) {
     dispatch(setActiveChat(existingNewChat._id));
     setSidebarOpen(false);
@@ -348,16 +340,14 @@ const ChatPage = () => {
   }
 
   try {
-    const newChatAction = await dispatch(asyncCreateNewChat("New Chat"));
-    const newChat = newChatAction.payload;
+    // Returns normalized chat object directly (not wrapped in { payload })
+    const newChat = await dispatch(asyncCreateNewChat("New Chat"));
 
-    // Bug Fix #1: Await the fetch FIRST, then set active chat.
-    // Previously, asyncFetchUserChats() was racing with setActiveChat
-    // and could overwrite/reset the activeChatId before it was applied.
-    await dispatch(asyncFetchUserChats());
-
-    if (newChat && newChat._id) {
+    if (newChat?._id) {
+      // 1. Set active chat using confirmed _id
       dispatch(setActiveChat(newChat._id));
+      // 2. Sync sidebar — safe now because chatsFetchSuccess merges not replaces
+      await dispatch(asyncFetchUserChats());
     }
 
     setSidebarOpen(false);
@@ -365,6 +355,9 @@ const ChatPage = () => {
     console.error("Failed to create chat", error);
   }
 };
+
+
+
   const handleLogout = () => {
     dispatch(asyncLogoutUser());
     navigate("/");
