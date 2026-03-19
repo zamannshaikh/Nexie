@@ -1,120 +1,248 @@
-.gateway-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  color: #e0e0e0;
-  font-family: system-ui, -apple-system, sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+/* === NEXIE GATEWAY SETUP - OBSIDIAN INTELLIGENCE THEME === */
+
+:root {
+  --void: #080a0f;
+  --surface: #0d1117;
+  --surface-2: #111827;
+  --surface-3: #1a2235;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-bright: rgba(255, 255, 255, 0.12);
+  --jade: #00e5a0;
+  --jade-dim: rgba(0, 229, 160, 0.12);
+  --jade-glow: rgba(0, 229, 160, 0.35);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.1);
+  --sky: #38bdf8;
+  --sky-dim: rgba(56, 189, 248, 0.1);
+  --text-1: #f8fafc;
+  --text-2: #94a3b8;
+  --text-3: #475569;
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-body: 'Instrument Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
+.gateway-container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  color: var(--text-1);
+  font-family: var(--font-body);
+}
+
+/* --- Header --- */
 .gateway-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
 }
 
 .gateway-header h1 {
-  font-size: 2.5rem;
-  color: #ffffff;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 800;
+  font-optical-sizing: auto;
+  letter-spacing: -0.025em;
+  color: var(--text-1);
+  margin-bottom: 0.75rem;
+  line-height: 1.1;
 }
 
 .gateway-header p {
-  color: #a0a0a0;
-  font-size: 1.1rem;
+  color: var(--text-2);
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.6;
 }
 
+/* --- Steps --- */
 .gateway-steps {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .step-card {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: 14px;
+  padding: 2rem 2rem 1.75rem;
   position: relative;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.25s, background-color 0.25s;
 }
 
 .step-card:hover {
-  border-color: #ef4444;
+  border-color: rgba(0, 229, 160, 0.25);
+  background-color: var(--surface-2);
 }
 
+/* Top-edge jade line on hover */
+.step-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 2rem; right: 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--jade), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+  border-radius: 1px;
+}
+
+.step-card:hover::before {
+  opacity: 0.6;
+}
+
+/* --- Step Number Badge --- */
 .step-number {
   position: absolute;
-  top: -15px;
-  left: -15px;
-  background-color: #ef4444;
-  color: #ffffff;
-  width: 30px;
-  height: 30px;
+  top: -14px;
+  left: -14px;
+  background-color: var(--jade);
+  color: var(--void);
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 0 14px var(--jade-glow);
 }
 
 .step-card h3 {
-  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
   margin-top: 0;
   margin-bottom: 0.5rem;
 }
 
 .step-card p {
-  color: #999;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin-bottom: 1rem;
+  color: var(--text-2);
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
 }
 
+/* --- Download Buttons --- */
 .download-btn {
   background-color: transparent;
-  color: #ef4444;
-  border: 1px solid #ef4444;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
+  color: var(--jade);
+  border: 1px solid rgba(0, 229, 160, 0.35);
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
   cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  letter-spacing: -0.01em;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 
 .download-btn:hover {
-  background-color: #ef4444;
-  color: #ffffff;
+  background-color: var(--jade-dim);
+  border-color: var(--jade);
+  box-shadow: 0 0 16px var(--jade-glow);
+  transform: translateY(-1px);
 }
 
+/* --- Token Box --- */
 .token-box {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #0f0f0f;
-  border: 1px solid #333;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
+  background-color: var(--void);
+  border: 1px solid var(--border-bright);
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle jade left-border accent */
+.token-box::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--jade);
+  opacity: 0.5;
 }
 
 .token-box code {
-  color: #ef4444;
-  font-family: monospace;
-  font-size: 0.9rem;
+  color: var(--jade);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
   word-break: break-all;
-  margin-right: 1rem;
+  line-height: 1.5;
+  flex: 1;
 }
 
+/* --- Copy Button --- */
 .copy-btn {
-  background-color: #2a2a2a;
-  color: #ffffff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  background-color: var(--surface-3);
+  color: var(--text-2);
+  border: 1px solid var(--border-bright);
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.8rem;
-  transition: background-color 0.2s ease;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .copy-btn:hover {
-  background-color: #444;
+  background-color: var(--jade-dim);
+  color: var(--jade);
+  border-color: rgba(0, 229, 160, 0.3);
+}
+
+/* "Copied!" state */
+.copy-btn[data-copied="true"],
+.copy-btn:disabled {
+  background-color: var(--jade-dim);
+  color: var(--jade);
+  border-color: rgba(0, 229, 160, 0.3);
+  cursor: default;
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+  .gateway-container {
+    padding: 2rem 1.25rem;
+  }
+
+  .gateway-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .step-card {
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+
+  .token-box {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .copy-btn {
+    align-self: flex-end;
+  }
+
+  .download-btn + .download-btn {
+    margin-left: 0 !important;
+    margin-top: 0.75rem;
+    display: block;
+  }
 }
