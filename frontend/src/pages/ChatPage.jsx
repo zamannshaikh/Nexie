@@ -310,26 +310,61 @@ const ChatPage = () => {
     }
   }, [userInput]);
 
+  // const handleNewChat = async () => {
+  //   try {
+  //     // 1. Create the chat and capture the returned data immediately
+  //     const newChatAction = await dispatch(asyncCreateNewChat("New Chat"));
+  //     const newChat = newChatAction.payload; // This is the actual chat object from backend
+
+  //     // 2. Update the list in the background (so the sidebar fills up)
+  //     dispatch(asyncFetchUserChats());
+
+  //     // 3. CRITICAL STEP: Set the active chat manually right now.
+  //     // We don't wait for the fetch; we just force the UI to switch.
+  //     if (newChat && newChat._id) {
+  //       dispatch(setActiveChat(newChat._id));
+  //     }
+
+  //     setSidebarOpen(false);
+  //   } catch (error) {
+  //     console.error("Failed to create chat", error);
+  //   }
+  // };
+
+
   const handleNewChat = async () => {
-    try {
-      // 1. Create the chat and capture the returned data immediately
-      const newChatAction = await dispatch(asyncCreateNewChat("New Chat"));
-      const newChat = newChatAction.payload; // This is the actual chat object from backend
+  // Bug Fix #2: Prevent duplicate new chats.
+  // If an empty "New Chat" already exists, just switch to it.
+  const existingNewChat = chatHistory.find(
+    (chat) =>
+      chat.title === "New Chat" &&
+      (!messagesByChatId[chat._id] || messagesByChatId[chat._id].length === 0)
+  );
 
-      // 2. Update the list in the background (so the sidebar fills up)
-      dispatch(asyncFetchUserChats());
+  if (existingNewChat) {
+    dispatch(setActiveChat(existingNewChat._id));
+    setSidebarOpen(false);
+    return;
+  }
 
-      // 3. CRITICAL STEP: Set the active chat manually right now.
-      // We don't wait for the fetch; we just force the UI to switch.
-      if (newChat && newChat._id) {
-        dispatch(setActiveChat(newChat._id));
-      }
+  try {
+    const newChatAction = await dispatch(asyncCreateNewChat("New Chat"));
+    const newChat = newChatAction.payload;
 
-      setSidebarOpen(false);
-    } catch (error) {
-      console.error("Failed to create chat", error);
+    // Bug Fix #1: Await the fetch FIRST, then set active chat.
+    // Previously, asyncFetchUserChats() was racing with setActiveChat
+    // and could overwrite/reset the activeChatId before it was applied.
+    await dispatch(asyncFetchUserChats());
+
+    if (newChat && newChat._id) {
+      dispatch(setActiveChat(newChat._id));
     }
-  };
+
+    setSidebarOpen(false);
+  } catch (error) {
+    console.error("Failed to create chat", error);
+  }
+};
   const handleLogout = () => {
     dispatch(asyncLogoutUser());
     navigate("/");
