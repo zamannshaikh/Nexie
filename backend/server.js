@@ -1,11 +1,14 @@
 require("dotenv").config();
 const app= require("./src/app");
 const connectDB=require("./src/db/db");
+
+const {connectRedis}=require("./src/db/redis");
 const {initSocketServer}=require("./src/sockets/socket.server");
 const httpServer=require("http").createServer(app); 
 
 initSocketServer(httpServer);
 connectDB();
+connectRedis();
 
 const PORT = process.env.PORT || 5000;
 
