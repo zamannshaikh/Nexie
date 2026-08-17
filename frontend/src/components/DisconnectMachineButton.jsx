@@ -7,12 +7,15 @@ export default function DisconnectMachineButton() {
   const [isActive, setIsActive] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+
   const BACKEND_URI = import.meta.env.VITE_BACKEND_URI;
+  
 
 
   // 1. Fetch the active status when the component loads
   const checkStatus = async () => {
     try {
+      console.log("Backend uri from status button: ",BACKEND_URI)
       const response = await api.get(`${BACKEND_URI}/gateway/token/status`, {
         credentials: 'include'
       });

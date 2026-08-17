@@ -8,6 +8,8 @@ import {
 
 // ✅ Fetch all messages of a specific chat
 export const asyncFetchMessages = (chatId) => async (dispatch) => {
+
+  console.log("Received the req");
   try {
     dispatch(messagesFetchStart());
     console.log("Fetching messages for chat:", chatId);

@@ -1,6 +1,8 @@
 import { setCurrentUser,removeCurrentUser } from "../slices/userSlice"; 
 import axios from "../../api/axiosconfig";
 
+import { setAccessToken } from "../../api/axiosconfig";
+
  
  
  
@@ -30,16 +32,17 @@ export const asyncLoginUser = (email, password) => async (dispatch) => {
             withCredentials: true,
         });
 
-        const user = response.data;
+        const {user,accessToken}= response.data;
         console.log("from login : ", user)
+        setAccessToken(accessToken);
 
         // 1. Dispatch to update Redux state
-        dispatch(setCurrentUser(user));
+        dispatch(setCurrentUser({ 
+            user: user, 
+            accessToken: accessToken 
+        }));
 
-        // 2. Save user to Local Storage
-        // We use JSON.stringify because local storage can only store strings.
-        localStorage.setItem('user', JSON.stringify(user));
-        return user; 
+        return user;
 
     } catch (error) {
         console.error("Error logging in:", error);
@@ -76,27 +79,59 @@ export const asyncLogoutUser = () => async (dispatch) => {
 
 
 // Get Current User
+// export const asyncGetCurrentUser = () => async (dispatch) => {
+//     try {
+//         const response = await axios.get("/auth/currentUser", {
+//             withCredentials: true, // ensures cookies/session are sent
+//         });
+
+//         const user = response.data;
+
+//         // 1. Dispatch to Redux
+//         dispatch(setCurrentUser(user));
+
+//         // 2. Save to Local Storage
+//         localStorage.setItem("user", JSON.stringify(user));
+
+//         console.log("Fetched current user:", user);
+//     } catch (error) {
+//         console.error("Error fetching current user:", error);
+
+//         // If unauthorized or session expired, clear state
+//         localStorage.removeItem("user");
+//         dispatch(removeCurrentUser());
+//     }
+// };
+
+
 export const asyncGetCurrentUser = () => async (dispatch) => {
     try {
-        const response = await axios.get("/auth/currentUser", {
-            withCredentials: true, // ensures cookies/session are sent
-        });
+         console.log("RAN!!!");
+        // 1. Silently ask the backend for a new Access Token using the HttpOnly cookie
+        const refreshResponse = await axios.get("/auth/refresh");
+        console.log("Current user ==> ",refreshResponse);
+        const { accessToken } = refreshResponse.data;
+        console.log("ACess Token ==> ",accessToken);
+        // 2. Save the token to our Axios interceptor memory
+        setAccessToken(accessToken);
 
-        const user = response.data;
+        // 3. NOW fetch the user profile using the custom 'api' instance
+        // Because we used setAccessToken, the interceptor will automatically attach it!
+        const userResponse = await axios.get("/auth/currentUser");
+        const user = userResponse.data;
 
-        // 1. Dispatch to Redux
-        dispatch(setCurrentUser(user));
+        // 4. Dispatch BOTH to Redux as a single object
+        dispatch(setCurrentUser({ user: user, accessToken: accessToken }));
 
-        // 2. Save to Local Storage
-        localStorage.setItem("user", JSON.stringify(user));
-
-        console.log("Fetched current user:", user);
+        console.log("Session restored:", user);
+        return user; 
+        
     } catch (error) {
-        console.error("Error fetching current user:", error);
-
-        // If unauthorized or session expired, clear state
-        localStorage.removeItem("user");
+        console.log("No active session found. User needs to log in : ",error);
+        
+        // Ensure everything is wiped clean if the refresh cookie is missing/expired
         dispatch(removeCurrentUser());
+        return null; 
     }
 };
 

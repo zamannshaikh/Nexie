@@ -224,7 +224,7 @@ const ChatPage = () => {
     navigate("/gateway-setup");
   };
 
-  const { user } = useSelector((state) => state.userReducer);
+  const { user,accessToken } = useSelector((state) => state.userReducer);
   const { chatsById, activeChatId } = useSelector((state) => state.chatReducer);
   const { messagesByChatId } = useSelector((state) => state.messageReducer);
 
@@ -243,59 +243,137 @@ const ChatPage = () => {
   }, [user, dispatch]);
 
   // Effect to manage the socket connection
-  useEffect(() => {
-    socket.current = io("/", {
+  // useEffect(() => {
+  //   socket.current = io("/", {
+  //     withCredentials: true,
+  //     transports: ["websocket"],
+  //     path: "/socket.io",
+  //   });
+  //   socket.current.on("connect_error", (err) => {
+  //     console.error("🚨 SOCKET CONNECTION ERROR:", err.message); // This will now print!
+  //   });
+  //   socket.current.on("connect", () => {
+  //     console.log("✅ SOCKET CONNECTED SUCCESSFULLY:", socket.current.id);
+  //   });
+
+  //   // NEW LISTENER for the "working" signal
+  //   const handleResponsePending = (data) => {
+  //     const currentActiveChatId = store.getState().chatReducer.activeChatId;
+  //     if (data.chat === currentActiveChatId) {
+  //       setIsLoading(true);
+  //     }
+  //     return () => {
+  //       if (socket.current) socket.current.disconnect();
+  //     };
+  //   };
+
+  //   // UPDATED LISTENER for the final response
+  //   const handleResponse = (data) => {
+  //     const currentActiveChatId = store.getState().chatReducer.activeChatId;
+  //     // Ensure the incoming message is for the currently active chat
+  //     if (data.chat === currentActiveChatId) {
+  //       const aiMessage = {
+  //         _id: `bot-${Date.now()}`,
+  //         chat: data.chat,
+  //         content: data.content,
+  //         role: "model",
+  //         sender: "bot", // For UI consistency
+  //         text: data.content, // For UI consistency
+  //       };
+  //       dispatch(
+  //         messageAdd({ chatId: currentActiveChatId, message: aiMessage }),
+  //       );
+  //       setIsLoading(false); // Turn off loading indicator
+  //     }
+  //   };
+
+  //   // Attach the new and updated listeners
+  //   socket.current.on("response_pending", handleResponsePending);
+  //   socket.current.on("response", handleResponse);
+  //   return () => {
+  //     socket.current.off("response_pending", handleResponsePending);
+  //     socket.current.off("response", handleResponse);
+  //     socket.current.disconnect();
+  //   };
+  // }, [dispatch]);
+
+
+
+
+
+
+    useEffect(() => {
+    // Optional: Don't connect until the access token actually exists in memory
+    if (!accessToken) return;
+
+    // 2. Add the auth object containing the token right here:
+    socket.current = io("http://localhost:5000", { // Make sure this points to your backend URL if not proxied
       withCredentials: true,
       transports: ["websocket"],
       path: "/socket.io",
+      auth: {
+        token: accessToken // 👈 THIS IS WHERE THE ACCESS TOKEN GOES
+      }
     });
+
     socket.current.on("connect_error", (err) => {
-      console.error("🚨 SOCKET CONNECTION ERROR:", err.message); // This will now print!
+      console.error("🚨 SOCKET CONNECTION ERROR:", err.message);
     });
+
     socket.current.on("connect", () => {
       console.log("✅ SOCKET CONNECTED SUCCESSFULLY:", socket.current.id);
     });
 
-    // NEW LISTENER for the "working" signal
     const handleResponsePending = (data) => {
       const currentActiveChatId = store.getState().chatReducer.activeChatId;
       if (data.chat === currentActiveChatId) {
         setIsLoading(true);
       }
-      return () => {
-        if (socket.current) socket.current.disconnect();
-      };
+      // Note: Removed the misplaced return disconnect statement from inside this handler!
     };
 
-    // UPDATED LISTENER for the final response
     const handleResponse = (data) => {
       const currentActiveChatId = store.getState().chatReducer.activeChatId;
-      // Ensure the incoming message is for the currently active chat
       if (data.chat === currentActiveChatId) {
         const aiMessage = {
           _id: `bot-${Date.now()}`,
           chat: data.chat,
           content: data.content,
           role: "model",
-          sender: "bot", // For UI consistency
-          text: data.content, // For UI consistency
+          sender: "bot",
+          text: data.content,
         };
         dispatch(
-          messageAdd({ chatId: currentActiveChatId, message: aiMessage }),
+          messageAdd({ chatId: currentActiveChatId, message: aiMessage })
         );
-        setIsLoading(false); // Turn off loading indicator
+        setIsLoading(false);
       }
     };
 
-    // Attach the new and updated listeners
     socket.current.on("response_pending", handleResponsePending);
     socket.current.on("response", handleResponse);
+
+    // 3. Proper cleanup when unmounting or when accessToken changes
     return () => {
-      socket.current.off("response_pending", handleResponsePending);
-      socket.current.off("response", handleResponse);
-      socket.current.disconnect();
+      if (socket.current) {
+        socket.current.off("response_pending", handleResponsePending);
+        socket.current.off("response", handleResponse);
+        socket.current.disconnect();
+      }
     };
-  }, [dispatch]);
+  }, [dispatch, accessToken]); 
+
+
+
+
+
+
+
+
+
+
+
+  
 
   // Effect for auto-scrolling & textarea height
   useEffect(() => {
@@ -410,9 +488,11 @@ const handleNewChat = async () => {
     setIsLoading(true);
   };
 
-  const selectChat = (chatId) => {
+  const selectChat = (chatId,e) => {
+    e.preventDefault();
     dispatch(setActiveChat(chatId));
     if (!messagesByChatId[chatId]) {
+      console.log("Sending req to Message service")
       dispatch(asyncFetchMessages(chatId));
     }
   };
@@ -437,7 +517,7 @@ const handleNewChat = async () => {
                   className={`chat-history-item ${
                     chat._id === activeChatId ? "active" : ""
                   }`}
-                  onClick={() => selectChat(chat._id)}
+                  onClick={(e) => selectChat(chat._id,e)}
                 >
                   {chat.title}
                 </div>

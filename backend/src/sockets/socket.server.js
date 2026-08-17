@@ -54,28 +54,64 @@ function initSocketServer(httpServer) {
         return next(new Error("Invalid gateway token"));
       }
     }
+    // try {
+    //   const cookies = socket.handshake.headers?.cookie || "";
+    //   console.log("🍪 Cookies received:", cookies ? "Yes" : "No");
+    //   const parsedCookies = cookie.parse(cookies);
+    //   const token =
+    //     parsedCookies.token ||
+    //     socket.handshake.auth?.token ||
+    //     socket.handshake.query?.token;
+
+    //   if (!token) return next(new Error("No token found"));
+
+    //   const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    //   const user = await userModel.findById(decoded.userId);
+
+    //   if (!user) return next(new Error("User not found"));
+
+    //   socket.user = user;
+    //   next();
+    // } catch (err) {
+    //   console.error("Socket auth error:", err.message);
+    //   next(new Error("Unauthorized"));
+    // }
+
+
+
     try {
-      const cookies = socket.handshake.headers?.cookie || "";
-      console.log("🍪 Cookies received:", cookies ? "Yes" : "No");
-      const parsedCookies = cookie.parse(cookies);
-      const token =
-        parsedCookies.token ||
-        socket.handshake.auth?.token ||
-        socket.handshake.query?.token;
+      // 🚨 UPDATE: We no longer check cookies! The frontend explicitly passes 
+      // the in-memory Access Token via the `auth` object we configured in React.
+      const token = socket.handshake.auth?.token;
 
-      if (!token) return next(new Error("No token found"));
+      if (!token) {
+          console.log("❌ No token provided in socket auth payload");
+          return next(new Error("No token found"));
+      }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // 🚨 UPDATE: Verify using the new ACCESS_TOKEN_SECRET
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      
+      // Look up the user in the database
       const user = await userModel.findById(decoded.userId);
 
-      if (!user) return next(new Error("User not found"));
+      if (!user) {
+          console.log("❌ User not found in database for socket connection");
+          return next(new Error("User not found"));
+      }
 
+      // Attach the verified user to the socket
       socket.user = user;
       next();
+      
     } catch (err) {
-      console.error("Socket auth error:", err.message);
+      console.error("❌ Socket auth error:", err.message);
+      // If the token is expired, jwt.verify throws an error here.
+      // Your React app will catch this "Unauthorized" error and can attempt a refresh.
       next(new Error("Unauthorized"));
     }
+
+
   });
 
  

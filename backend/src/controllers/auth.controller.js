@@ -2,7 +2,7 @@ const userModel=require("../models/user.model");
 const bcrypt=require("bcryptjs");
 const jwt=require("jsonwebtoken");
 const { OAuth2Client } = require('google-auth-library');
-
+const {redisClient}= require("../db/redis");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // Helper to generate your application's token
 const generateToken = (id) => {
@@ -49,15 +49,64 @@ async function loginUser(req,res) {
         if(!isPasswordValid){
             return res.status(400).json({message:"Invalid email or password"});
         }
-        const token=jwt.sign({userId:user._id},process.env.JWT_SECRET);
-        res.cookie('token',token,{
-              httpOnly: true,
-  secure: true,         // true if using https
-  sameSite: "none"       // 👈 needed for cross-origin
-        });
-        res.status(200).json({message:"Login successful"});
-        console.log("User logged in:",user);
+        // const token=jwt.sign({userId:user._id},process.env.JWT_SECRET);
+
+        const userId = user._id.toString();
+
+
+
+        const accessToken = jwt.sign(
+        { userId: userId }, 
+        process.env.ACCESS_TOKEN_SECRET, 
+        { expiresIn: '15m' } 
+    );
+
+    const refreshToken = jwt.sign(
+        { userId: userId }, 
+        process.env.REFRESH_TOKEN_SECRET, 
+        { expiresIn: '7d' } 
+    );
+
+
+    try {
+        // ioredis syntax: .set(key, value, 'EX', expiration_in_seconds)
+        // 7 days = 604800 seconds
+        await redisClient.set(userId, refreshToken, 'EX', 604800);
     } catch (error) {
+        return res.status(500).json({ message: 'Failed to store session' });
+    }
+
+
+
+//         res.cookie('token',token,{
+//               httpOnly: true,
+//   secure: true,         // true if using https
+//   sameSite: "none"       // 👈 needed for cross-origin
+//         });
+
+
+
+
+    res.cookie('jwt', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict', // or 'None' if frontend and backend are on different domains in production
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+           console.log("User logged in:",user);
+
+        // 2. Send the single final JSON response with ALL required data
+        return res.status(200).json({
+            message: "Login successful",
+            accessToken: accessToken,
+            user: user // Sending this so your Redux store can grab it!
+        });
+    
+     
+    }
+    
+    
+    catch (error) {
         console.error("Error in user login:",error);
         res.status(500).json({message:"Internal server error"});
     }
@@ -86,18 +135,18 @@ async function currentUserController(req,res) {
 
 async function logoutUser(req,res) {
      try {
-        // This controller assumes you are using cookies for session management (e.g., with JWT).
-        // The name of the cookie ('token' in this example) must match the name
-        // you set when the user logged in.
-        res.clearCookie('token', {
-            httpOnly: true, // Protects against XSS attacks
-            secure: true, // Only send over HTTPS in production
-            sameSite: 'none', // Helps mitigate CSRF attacks
-            expires: new Date(0) // Set the expiry date to the past to delete it instantly
-        });
 
-        // Send a success response to the client.
-        res.status(200).json({ message: "Logout successful." });
+        const cookies = req.cookies;
+    if (!cookies?.jwt) return res.sendStatus(204);
+
+        const decoded = jwt.decode(cookies.jwt);
+    if (decoded?.userId) {
+        await redisClient.del(decoded.userId); // Remove from Cloud Redis
+    }
+
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'Strict', secure: true });
+    res.sendStatus(204);
+    
 
     } catch (error) {
         // If something goes wrong on the server, send an error response.
@@ -168,4 +217,39 @@ const loginWithGoogle = async (req, res) => {
 
 
 
-module.exports={registerUser, loginUser,currentUserController,logoutUser,loginWithGoogle};
+
+
+
+async function refreshTokenController(req,res) {
+
+
+    
+    const cookies = req.cookies;
+    if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' });
+
+    const refreshToken = cookies.jwt;
+
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
+        if (err) return res.status(403).json({ message: 'Forbidden' });
+
+        const userId = decoded.userId;
+
+        try {
+            const storedToken = await redisClient.get(userId);
+            if (!storedToken || storedToken !== refreshToken) {
+                return res.status(403).json({ message: 'Session expired or invalid' });
+            }
+
+            const newAccessToken = jwt.sign({  userId: userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+            res.json({ accessToken: newAccessToken });
+        } catch (error) {
+            res.status(500).json({ message: 'Server error' });
+        }
+    });
+    
+}
+
+
+
+
+module.exports={registerUser, loginUser,currentUserController,logoutUser,loginWithGoogle,refreshTokenController};
