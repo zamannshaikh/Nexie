@@ -158,7 +158,6 @@ async function logoutUser(req,res) {
 
 
 
-// NEW: Controller for Google Login
 const loginWithGoogle = async (req, res) => {
     const { token } = req.body;
     console.log("Received Google token:", token);
@@ -173,15 +172,12 @@ const loginWithGoogle = async (req, res) => {
         const payload = ticket.getPayload();
         const { name, email } = payload;
 
-        // 2. Check if user exists in your database
+
         let user = await userModel.findOne({ email });
         
 
-        // 3. If user doesn't exist, create a new one
         if (!user) {
-            // Note: Google doesn't provide a password. You might want to
-            // create users from Google without a password field, or generate a random one.
-            // A common approach is to have a field like 'authMethod: "google"'
+           
             user = await userModel.create({
                 name,
                 email
@@ -190,23 +186,45 @@ const loginWithGoogle = async (req, res) => {
             console.log("User logged in via Google:", user._id);
         }
         
-        // 4. If the user was found but signed up with email/password previously,
-        // you might want to handle this case (e.g., link accounts), but for now, we'll just log them in.
 
-        // 5. Generate your application's token and send response
-        const appToken = generateToken(user._id);
+        const userId=user._id.toString();
 
-         res.cookie('token', appToken, {
+        const accessToken=jwt.sign(
+            { userId: userId }, 
+            process.env.ACCESS_TOKEN_SECRET, 
+            { expiresIn: '15m' }
+        );
+
+        const refreshToken = jwt.sign(
+            { userId: userId }, 
+            process.env.REFRESH_TOKEN_SECRET, 
+            { expiresIn: '7d' } 
+        );
+
+        try {
+            await redisClient.set(userId, refreshToken, 'EX', 604800); // 7 days
+        } catch (error) {
+            return res.status(500).json({ message: 'Failed to store session' });
+        }
+
+        res.cookie('jwt', refreshToken, {
             httpOnly: true,
-            secure: true,   // true in production (https)
-            sameSite: "none"
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
+        //  res.status(200).json({
+        //     _id: user._id,
+        //     name: user.name,
+        //     email: user.email,
+        //     message: "Google login successful"
+        // });
+
          res.status(200).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            message: "Google login successful"
+            message: "Google login successful",
+            accessToken: accessToken,
+            user: user
         });
 
     } catch (error) {

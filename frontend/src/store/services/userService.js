@@ -146,17 +146,21 @@ export const asyncLoginWithGoogle = (credential) => async (dispatch) => {
 
     try {
         // 2. Make the API call
-        const { data } = await axios.post('/auth/google', { token: credential });
+        const response = await axios.post('/auth/google', { token: credential });
 
-        // On success, save the token from the backend
-        localStorage.setItem('token', data.token);
-        console.log("from user Service data :",data)
+        const { user, accessToken } = response.data;
 
-        // 3. Dispatch a "success" action with the user data
-        dispatch(setCurrentUser(data));
+
+        console.log("from user Service data :",user, accessToken);
+
+        // 1. Give the token to your Axios interceptor
+        setAccessToken(accessToken);
+
+        // 2. Dispatch them both to Redux
+        dispatch(setCurrentUser({ user, accessToken }));
 
         // Return the data so the component can use it if needed
-        return data;
+        return user;
 
     } catch (error) {
         // 4. On failure, figure out the error message
