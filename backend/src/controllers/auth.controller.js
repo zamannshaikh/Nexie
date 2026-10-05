@@ -228,8 +228,15 @@ const loginWithGoogle = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error verifying Google token:", error);
-        res.status(401).json({ message: 'Invalid Google Token. Please try again.' });
+         console.error("========== GOOGLE LOGIN ERROR ==========");
+        console.error("Message:", error.message);
+        console.error("Name:", error.name);
+        console.error("Stack:", error.stack);
+        console.error("========================================");
+
+        return res.status(401).json({
+            message: "Invalid Google Token",
+            error: error.message})
     }
 };
 
