@@ -307,7 +307,7 @@ const ChatPage = () => {
     if (!accessToken) return;
 
     // 2. Add the auth object containing the token right here:
-    socket.current = io("http://localhost:5000", { // Make sure this points to your backend URL if not proxied
+    socket.current = io("https://nexie.in", { // Make sure this points to your backend URL if not proxied
       withCredentials: true,
       transports: ["websocket"],
       path: "/socket.io",
